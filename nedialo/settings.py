@@ -22,14 +22,14 @@ LOGIN_URL ="/login"
 X_CONTENT_TYPE_OPTIONS = 'nosniff'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-jq!j4k-08wpl8rlf$l*4s7!6nk+r!i^)##3@cvc@7fk7q^r!*g'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-HERE_API = "subiFh6YKo1e2ekHxrsLnqGFg7glIi18tqNawTHkH2c"
+HERE_API = ""
 
 # Application definition
 
@@ -84,9 +84,7 @@ WSGI_APPLICATION = 'nedialo.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-#DISCORD_TOKEN = 'MTI1MDg3NDk3OTA5Mjc5MTQyNw.GXAr10.C0NTwXy44GD8013b411bkVsn8VmJVYsOrp4Abo'
 
-# DISCORD_TOKEN = 'MTI1MDg3NDk3OTA5Mjc5MTQyNw.GTR4Mr.AUCOJKOLUHn4-whhGQs7zOKZxs2N2ZO8XgJy88'
 
 
 
