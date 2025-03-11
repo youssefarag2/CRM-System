@@ -57,3 +57,12 @@ Follow these steps to set up and run the CRM application on your local machine.
      ```bash
      source venv/bin/activate
      ```
+5. Install Requirements
+     ```bash
+    pip install -r requirements.txt
+     ```
+6. Run the Development Server
+   ```bash
+    python manage.py runserver
+   ```
+   
