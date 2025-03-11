@@ -11,6 +11,7 @@ This Django-based CRM (Customer Relationship Management) application is designed
 - **Property Listings**: Manage property listings, including details, status, and updates.
 - **Dashboards**: Visualize key metrics and performance indicators through interactive dashboards.
 - **Reporting**: Generate reports on client interactions, agent performance, and property status.
+- **Third Party**: Integrating third party API like Discord API to track all agents activites.
 
 ## Screenshots
 
