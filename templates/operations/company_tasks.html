@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+
+{% load custom_filters %}
+
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+
+
+</style>
+
+
+
+
+<style>
+    .border-radius-md {
+        border: none !important;  /* Remove any border */
+    }
+
+    /* Or set it to a specific color if needed */
+    .border-radius-md {
+        border: 1px solid transparent !important;  /* Set border to transparent */
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container-fluid py-4">
+  <div class="d-sm-flex justify-content-between">
+    <div class="container">
+      <div class="calendar-container"></div>
+
+      <!-- Button to open the date picker -->
+      <button type="button" class="datepicker btn btn-outline-info dropdown-toggle">
+          {{year}}
+      </button>
+
+    </div>
+
+    <div class="d-flex">
+
+      <div class="dropdown d-inline">
+        <a class="btn btn-icon  ms-2  bg-gradient-info  mb-0 mt-3" href="/new-task" target="_parent">
+          +Add
+          
+        </a>
+      </div>
+
+    </div>
+  </div>
+    <div class="mt-3 kanban-container">
+        
+      <div class="py-2 min-vh-100 d-inline-flex" style="overflow-x: auto">
+
+
+        <div id="myKanban"></div>
+      </div>
+    </div>
+    
+    
+    
+  </div>
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/rangePlugin.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          var button = document.querySelector(".datepicker");
+          var calendarContainer = document.querySelector(".calendar-container");
+    
+          // Set camp-id dynamically or statically here
+    
+          var fp = flatpickr(calendarContainer, {
+              dateFormat: "Y-m", // Internal format
+              altInput: true, // Use an alternative input
+              altFormat: "F Y", // Display format in the button
+              allowInput: true, // Allow manual input
+              onChange: function(selectedDates, dateStr, instance) {
+                  var selectedDate = selectedDates[0];
+                  if (selectedDate) {
+                      var formattedDate = instance.formatDate(selectedDate, "F Y");
+                      button.textContent = formattedDate;
+
+                      // Construct the URL and redirect
+                      var year = instance.formatDate(selectedDate, "Y");
+                      var month = instance.formatDate(selectedDate, "m");
+                      var redirectUrl = `/company-tasks-${year}`;
+                      window.location.href = redirectUrl; // Redirect to the constructed URL
+                  }
+              },
+              onOpen: function() {
+                  // Position the calendar container below the button
+                  var rect = button.getBoundingClientRect();
+                  calendarContainer.style.left = `${rect.left}px`;
+                  calendarContainer.style.top = `${rect.bottom}px`;
+                  calendarContainer.style.display = 'block';
+              },
+              onClose: function() {
+                  // Hide the calendar when it is closed
+                  calendarContainer.style.display = 'none';
+              }
+          });
+    
+          // Open flatpickr calendar when the button is clicked
+          button.addEventListener("click", function() {
+              fp.open();
+          });
+    
+          // Close flatpickr calendar when clicking outside
+          document.addEventListener("click", function(event) {
+              if (!fp.calendarContainer.contains(event.target) && !event.target.closest(".datepicker")) {
+                  fp.close();
+              }
+          });
+      });
+    </script>
+  
+
+
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="static/js/plugins/jkanban/jkanban.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
+  <script src="static/js/plugins/dragula/dragula.min.js"></script>
+
+
+
+
+
+ 
+
+<script>
+
+
+  document.addEventListener('DOMContentLoaded', function() {
+
+    function getInterestBadge(interestRating) {
+      // Convert the interestRating to an integer
+      interestRating = parseInt(interestRating, 10);
+  
+      switch (interestRating) {
+          case 1:
+              return '<span class="badge badge-sm bg-gradient-danger">Very Low</span>';
+          case 2:
+              return '<span class="badge badge-sm bg-gradient-warning">Low Priority</span>';
+          case 3:
+              return '<span class="badge badge-sm bg-gradient-warning">Moderate Priority</span>';
+          case 4:
+              return '<span class="badge badge-sm bg-gradient-success">High Priority</span>';
+          case 5:
+              return '<span class="badge badge-sm bg-gradient-success">Very High</span>';
+          default:
+              return '<span class="badge badge-sm bg-gradient-secondary">Unknown</span>'; // Fallback for unexpected values
+      }
+    }
+
+
+
+
+   // Function to initialize the jKanban board
+  function initializeKanbanBoard() {
+    if (document.getElementById("myKanban")) {
+        // Clear existing Kanban board
+        const kanbanElement = document.getElementById("myKanban");
+        kanbanElement.innerHTML = '';  // Clear existing Kanban items
+
+        var KanbanTest = new jKanban({
+            element: "#myKanban",
+            gutter: "10px",
+            widthBoard: "350px",
+            dragItems: false,  // Disable dragging of items
+            dragBoards: false,  // Disable dragging of boards
+
+            click: el => {
+                let taskId = el.getAttribute("data-leadid");
+                
+        
+                // Define the URL where you want to redirect
+                let redirectUrl = `/task-info/${taskId}`;
+                window.location.href = redirectUrl;
+
+
+                
+            },
+
+            buttonClick: function(el, boardId) {
+                if (document.querySelector("[data-id='" + boardId + "'] .itemform") === null) {
+                    var formItem = document.createElement("form");
+                    formItem.setAttribute("class", "itemform");
+                    formItem.innerHTML = `<div class="input-group">
+                        <textarea class="form-control" rows="2" autofocus></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn bg-gradient-success btn-sm pull-end">Add</button>
+                        <button type="button" id="kanban-cancel-item" class="btn bg-gradient-light btn-sm pull-end me-2">Cancel</button>
+                    </div>`;
+
+                    KanbanTest.addForm(boardId, formItem);
+                    formItem.addEventListener("submit", function(e) {
+                        e.preventDefault();
+                        var text = e.target[0].value;
+                        let newTaskId = "_" + text.toLowerCase().replace(/ /g, "_") + boardId;
+                        KanbanTest.addElement(boardId, {
+                            id: newTaskId,
+                            title: text,
+                            class: []
+                        });
+                        formItem.parentNode.removeChild(formItem);
+                    });
+                    document.getElementById("kanban-cancel-item").onclick = function() {
+                        formItem.parentNode.removeChild(formItem);
+                    };
+                }
+            },
+            addItemButton: false,
+            boards: [
+                {% for status, tasks in tasks.items %}
+                {
+                    id: "{{status}}",
+                    title: "{{ task_departments|get_item:status }} - {{tasks|length}}",
+                    "data-id": "{{ status }}",
+                    item: [
+                        {% if tasks %}
+                        {% for task in tasks %}
+                        {
+                            id: "{{task.id}}",
+                            title: `
+                            {% if task.priority == 1%}<span class="badge badge-sm bg-gradient-secondary">Very Low</span>
+                            {%elif task.priority == 2%}<span class="badge badge-sm bg-gradient-secondary">Low Priority</span>
+                            {%elif task.priority == 3%}<span class="badge badge-sm bg-gradient-secondary">Moderate Priority</span>
+                            {%elif task.priority == 4%}<span class="badge badge-sm bg-gradient-secondary">High Priority</span>
+                            {%elif task.priority == 5%}<span class="badge badge-sm bg-gradient-secondary">Very High</span>
+                            {%endif%}
+                            
+                            
+                            <p class="text mt-2">{{task.title}}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Due: {{ task.due|date:'Y-m-d'  }}</span>
+
+                            {% if task.status == 'in_progress' %}<span class="badge badge-sm bg-gradient-info">In Progress</span>
+                            {%elif task.status == 'on_hold' %}<span class="badge badge-sm bg-gradient-warning">On Hold</span>
+                            {%elif task.status == 'blocked' %}<span class="badge badge-sm bg-gradient-danger">Blocked</span>
+                            {%elif task.status == 'cancelled' %}<span class="badge badge-sm bg-gradient-danger">Cancelled</span>
+                            {%elif task.status == 'completed'%}<span class="badge badge-sm bg-gradient-success">Completed</span>
+                            {%endif%}
+
+                            </div>
+                            `,
+                            class: ["border-radius-md"],
+                            "leadid": "{{task.id|escapejs}}",
+                            "contact": "{{lead.contact|escapejs}}",
+                            "phone": "{{lead.contact_phone|escapejs}}",
+                            "email": "{{lead.contact_email|escapejs}}",
+                            "interest_rate": "{{lead.interest_rating}}",
+                            "followup_date": "{{ lead.followup_date|date:'Y-m-d' }}",
+                            "followup_time": "{{ lead.followup_time|time:'H:i' }}",
+                            "notes": "{{ lead.notes|escapejs }}",
+                            "agent":"{{lead.agent_profile.full_name}}",
+                        },
+                        {% endfor %}
+                        {% endif %}
+                    ]
+                },
+                {% endfor %}
+            ]
+        });
+    }
+    const titleButtons = document.querySelectorAll('.kanban-title-button'); // Adjust the selector if needed
+    titleButtons.forEach(button => {
+      button.style.display = 'none'; // This will hide each button
+    });
+  }
+
+  // Initial load of the Kanban board
+  initializeKanbanBoard();
+
+  // Function to refresh the Kanban board
+  function refreshKanbanBoard() {
+    initializeKanbanBoard();
+
+  }
+
+
+    
+
+   
+
+
+    /////////////////////////////////////////////////////////////////////
+
+
+    // Function to get CSRF token for AJAX requests
+    function getCookie2(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(`${name}=`)) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+
+
+
+    
+  });
+  
+  
+
+</script>
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+<style>
+  /* Set the cursor to default for Kanban items */
+  #myKanban .kanban-item {
+      cursor: pointer !important; /* Use the default mouse pointer */
+  }
+  </style>
+
+
+
+
+
+
+
+
+
+
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

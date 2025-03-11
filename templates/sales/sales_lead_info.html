@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">monetization_on</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Sales Lead Creation</h5>
+                </div>
+                <div class="card-header">
+                    <h6>Lead Info</h6>
+                </div>
+                <div class="card-body pt-0">
+                    <form role="form" class="text-start" method="POST" id="lead-form">  
+                        {% csrf_token %}
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>ID *</label>
+                                    <input type="text" class="form-control" name="agent_id" id="agent_id" value= "{{lead.agent_profile.id}}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" name="agent_name" id="agent_name" value= "{{lead.agent_profile.full_name}}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Contact / Organization Name *</label>
+                                    <input type="text" class="form-control" name="contact" id="contact" value="{{lead.contact}}" maxlength="36" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Phone Number *</label>
+                                    <input class="form-control"  type="text" name="phone" value="{{lead.contact_phone}}" required >
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Email *</label>
+                                    <input type="email" class="form-control" name="email" id="email"  value="{{lead.contact_email}}" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Interest *</label>
+                                    <select class="form-control" name="interest" id="priority" required>
+                                        <option value="">Select Interest</option> <!-- Blank option for initial selection -->
+                                          <option value="1" {% if lead.interest_rating == 1%}selected{% endif %}>Very Low</option>
+                                          <option value="2" {% if lead.interest_rating == 2%}selected{% endif %}>Low</option>
+                                          <option value="3" {% if lead.interest_rating == 3%}selected{% endif %}>Moderate</option>
+                                          <option value="4" {% if lead.interest_rating == 4%}selected{% endif %}>High</option>
+                                          <option value="5" {% if lead.interest_rating == 5%}selected{% endif %}>Very High</option>
+
+                                    </select>   
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Follow up Date *</label>
+                                    <input type="date" class="form-control" name="followup_date" id="followup_date" value="{{lead.followup_date|date:'Y-m-d'}}"  required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Follow up Time (NY TIME) *</label>
+                                    <input class="form-control"  type="time" name="followup_time" value="{{lead.followup_time|date:'H:i' }}" required >
+                                </div>
+                            </div>
+                        </div>
+
+
+                
+
+
+
+                        <div class="row mt-4">
+                            <div class="input-group input-group-static">
+                                <label>Notes / Updates</label>
+                                <textarea class="form-control" rows="5" name="notes" id="notes"   required>{{lead.notes}}</textarea>
+                            </div>
+                            
+                        </div>
+
+                        <div class="row mt-4">
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Lead Status *</label>
+                                    <select class="form-control" name="status" id="department" required>
+                                    <option value="">Select Status</option> <!-- Blank option for initial selection -->
+                                      {% for key,value in sales_statuses.items %}
+                                        <option value="{{key}}" {% if lead.status == key %}selected{% endif %}>{{value}}</option> <!-- Blank option for initial selection -->
+                                      {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+
+                        
+                       
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-info">Update</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+         
+
+        if (document.getElementById('department')) {
+            var department = document.getElementById('department');
+            const example = new Choices(department, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('priority')) {
+            var priority = document.getElementById('priority');
+            const example = new Choices(priority, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+    });
+
+</script>
+
+
+
+
+
+{% endblock %}

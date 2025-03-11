@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <title>Application Submitted</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #e3f2fd);
+    }
+    .card {
+      background: #fff;
+      padding: 60px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      max-width: 450px;
+      text-align: center;
+      transition: transform 0.2s ease-in-out;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .icon-circle {
+      border-radius: 50%;
+      height: 120px;
+      width: 120px;
+      background: #e3f2fd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 60px;
+      color: #1e88e5;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      animation: pop 0.4s ease forwards;
+    }
+    @keyframes pop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+    h1 {
+      color: #1e88e5;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #555;
+      font-size: 18px;
+      margin: 10px 0 0;
+      line-height: 1.6;
+    }
+    .card-button {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 12px 30px;
+      color: #fff;
+      background: #1e88e5;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s ease;
+    }
+    .card-button:hover {
+      background: #1565c0;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon-circle">
+      <i class="fas fa-check"></i>
+    </div>
+    <h1>Success!</h1>
+    <p>Your Application has been submitted successfully.<br>We’ll be in touch shortly!</p>
+    <a href="/" class="card-button">Return to Homepage</a>
+  </div>
+</body>
+</html>

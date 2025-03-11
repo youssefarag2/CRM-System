@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+<form role="form" class="text-start" method="POST" id="leave-request-form" >  
+{% csrf_token %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">house</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Leave Handling Form</h5>
+                </div>
+                <div class="card-header">
+                    <h6>Leave Info</h6>
+                </div>
+                <div class="card-body pt-0">
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Leave ID *</label>
+                                    <input type="text" class="form-control" name="leave_id" id="leave_id"  value= " {{leave.id}} " readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Agent Name *</label>
+                                    <input type="text" class="form-control" name="agent_name" id="agent_name" value= "{{leave.agent_profile}}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">Leave Type *</label>
+                                    <select class="form-control" name="leave_type" id="leave_type"  readonly>
+                                        {% for type in leave_types %}
+                                            
+                                                <option value="{{type.0}}" {% if type.0 == leave.leave_type %} selected {% endif %}>{{type.1}}</option>
+                                        {% endfor %}
+                                
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">Team Name *</label>
+                                    <select class="form-control" name="team" id="team" required>
+                                        <option value="">Select team</option>
+                                        {% for team in teams %}
+                                            {% if team == leave.team %}
+                                                <option value={{team.id}} selected>{{team.team_name}}</option>
+                                            {% else %}
+                                                <option value={{team.id}}>{{team.team_name}}</option>
+                                            {% endif %}
+
+                                        {% endfor %}
+                                
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Submission Date *</label>
+                                    <input type="date" class="form-control" name="submission" id="submission" value="{{leave.submission_date|date:'Y-m-d'}}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Requested Date *</label>
+                                    <input type="date" class="form-control" name="requested_date" id="requested_date" value="{{leave.requested_date|date:'Y-m-d'}}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                                <div class="input-group input-group-static">
+                                    <label>Reason *</label>
+                                    <input type="text" class="form-control" name="reason" id="reason" value="{{leave.reason}}" required>
+                                </div>
+                               
+                         </div>
+                        
+                        <div class="row mt-4">
+
+                                 <div class="input-group input-group-static">
+                                    <label>Handled by *</label>
+                                    <input type="text" class="form-control" name="handled_by" id="handled_by" value="{{leave.handled_by}}" readonly>
+                                </div>
+
+                        </div>
+                      
+ 
+    
+                    <hr>
+                    <!--
+                    <div class="row mt-4">
+                        <div class="input-group input-group-static">
+                            <label>Leave Status</label>
+                            <select class="form-control" name="leave_status" id="leave_status"  required>
+                                <option value="">Select a value</option>
+                                {% for status in leave_status %}
+                                    <option value="{{ status.0 }}" {% if status.0 == leave.status %} selected {% endif %}>{{ status.1 }}</option>
+                                {% endfor %}
+                                    
+                        
+                            </select>                                
+                        </div>
+                    </div>
+                    <button type="submit"  class="btn bg-gradient-info btn-sm float-end mt-6 mb-0">Submit</button>
+                        -->
+                    
+                </div>
+
+
+
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                </div>
+                <div class="card-header">
+                    <h6>Documents & Status</h6>
+                </div>
+
+
+                    <div class="card-header">
+                        <h5>Leave Request File</h5>
+                        <p class="text-sm">View or download the uploaded documents.</p>
+                        <a class="btn bg-gradient-dark" 
+                        data-bs-toggle="collapse" 
+                        href="#collapseFile" 
+                        role="button" 
+                        aria-expanded="false" 
+                        aria-controls="collapseFile"
+                        style="position: absolute; top: 1rem; right: 1rem; z-index: 1; background: linear-gradient(90deg, #1f1c1c, #2c2c2c); color: white;">
+                        View File
+                        </a>
+                    </div>
+                
+                    <div class="card-body pt-0">
+                        <div class="mt-4 text-center-custom">
+                            <div class="collapse" id="collapseFile">
+                                <div class="card card-body mt-3">
+                                    <!-- File Display -->
+                                    <div class="text-center">
+                                        {% if leave.file %}
+                                            {% if leave.file.url %}
+                                                {% with leave.file.name|slice:"-4:" as file_extension %}
+                                                    {% if file_extension|lower == ".jpg" or file_extension|lower == ".jpeg" or file_extension|lower == ".png" or file_extension|lower == ".gif" %}
+                                                        <!-- Display as Image -->
+                                                        <img src="{{ leave.file.url }}" alt="Leave File" class="img-container" style="max-width: 100%; height: auto;">
+                                                    {% else %}
+                                                        <!-- Provide Download Link for Non-Image Files -->
+                                                        <a href="{{ leave.file.url }}" download class="btn btn-info">Download File</a>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endif %}
+                                        {% else %}
+                                            <p>No file uploaded.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+
+                
+                <div class="card-body pt-0">
+
+                    <div class="row mt-4">
+                        <div class="input-group input-group-static">
+                            <label>Leave Status</label>
+                            <select class="form-control" name="leave_status" id="leave_status"  required>
+                                <option value="">Select a value</option>
+                                {% for status in leave_status %}
+                                    <option value="{{ status.0 }}" {% if status.0 == leave.status %} selected {% endif %}>{{ status.1 }}</option>
+                                {% endfor %}
+                                    
+                        
+                            </select>                                
+                        </div>
+                    </div>
+                    <button type="submit"  class="btn bg-gradient-info btn-sm float-end mt-6 mb-0">Submit</button>
+
+                        
+                </div>
+
+
+
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</form>
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+    
+        if (document.getElementById('leave_type')) {
+            var leave_type = document.getElementById('leave_type');
+            const example = new Choices(leave_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+       
+
+        if (document.getElementById('leave_status')) {
+            var leave_status = document.getElementById('leave_status');
+            const example = new Choices(leave_status, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                
+            });
+        }
+
+        if (document.getElementById('team')) {
+            var team = document.getElementById('team');
+            const example = new Choices(team, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                
+            });
+        }
+        
+
+    });
+
+</script>
+
+
+
+
+
+{% endblock %}

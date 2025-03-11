@@ -1,0 +1,261 @@
+{% extends 'base-admin.html' %}
+{% load custom_filters %}
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container-fluid py-4">
+  <div class="d-sm-flex justify-content-between">
+    <div>
+      <a href="dialer-create" class="btn btn-icon bg-gradient-info">
+        New Dialer
+      </a>
+    </div>
+    <div class="d-flex">
+      <div class="dropdown d-inline">
+ 
+         
+      </div>
+       
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Variant Used Dialers</h5>
+          <p class="text-sm mb-0">
+            View all Dialers.
+          </p>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-flush" id="datatable-search">
+            <thead class="thead-light">
+              <tr>
+                <th>ID</th>
+                <th>Dialer</th>
+                <th>Type</th>
+                <th>Action</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for dialer in dialers %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+
+                    <p class="text-xs font-weight-normal ms-2 mb-0">#{{dialer.id}}</p>
+                  </div>
+                </td>
+                <td class="font-weight-normal">
+                  <span class="my-2 text-xs">{{dialer.name}}</span>
+                </td>
+                <td class="text-xs font-weight-normal">
+                  {{dialer.get_dialer_type_display}}
+                </td>
+
+                
+
+
+
+                
+
+                <td class="text-sm">
+                  <div class="d-flex align-items-center">
+                    <a href="javascript:;" data-bs-toggle="tooltip" data-bs-original-title="Delete Dialer"  onclick= "showDeleteConfirmation('{{account}}','{{dialer.name}}','{{dialer.id}}')">
+                      <i class="material-icons text-secondary position-relative text-lg">delete</i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script src="../static/js/plugins/choices.min.js"></script>
+<script src="../static/js/plugins/multistep-form.js"></script>
+
+<script src="../static/js/plugins/datatables.js"></script>
+
+
+<script>
+  // Function to retrieve CSRF token from cookies
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+  }
+
+  function showDeleteConfirmation(account, dialerName, id) {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn bg-gradient-danger',
+        cancelButton: 'btn bg-gradient-dark'
+      },
+      buttonsStyling: false
+    });
+
+    swalWithBootstrapButtons.fire({
+      title: `Delete ${dialerName}`,
+      html: `
+        <div class="card border-0 shadow-sm input-group input-group-static">
+          <form id="passwordForm" class="text-center p-3">
+            <input type="password" id="passwordInput" class="form-control" placeholder="Enter your password">
+          </form>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#28a745',
+      cancelButtonText: 'Cancel',
+      cancelButtonColor: '#dc3545',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const password = document.getElementById('passwordInput').value;
+        if (!password) {
+          Swal.showValidationMessage('Please enter your password');
+          return false;
+        }
+
+        // Fetch CSRF token from cookie
+        const csrftoken = getCookie('csrftoken');
+
+        // Send POST request to delete user
+        return fetch(`/dialer-delete/${id}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken // Include CSRF token in headers
+          },
+          body: JSON.stringify({ password })// Include CSRF token in body
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Network response was not ok - ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .catch(error => {
+          Swal.showValidationMessage(`Request failed: ${error}`);
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+      didOpen: () => {
+        Swal.getConfirmButton().disabled = true;
+        document.getElementById('passwordInput').addEventListener('input', () => {
+          const password = document.getElementById('passwordInput').value;
+          Swal.getConfirmButton().disabled = password.length === 0;
+        });
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Dialer Deleted!',
+          icon: 'success'
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cancelled',
+          icon: 'error'
+        });
+      }
+    });
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+  const dataTableSearch = new simpleDatatables.DataTable("#datatable-search", {
+    searchable: true,
+    fixedHeight: false,
+    
+  });
+
+
+  document.querySelectorAll(".export").forEach(function(el) {
+    el.addEventListener("click", function(e) {
+      var type = el.dataset.type;
+
+      var data = {
+        type: type,
+        filename: "agents-" + type,
+      };
+
+      if (type === "csv") {
+        data.columnDelimiter = "|";
+      }
+
+      dataTableSearch.export(data);
+    });
+  });
+</script>
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+{% endblock %}

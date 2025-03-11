@@ -1,0 +1,302 @@
+{% extends 'base-admin.html' %}
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+
+
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="multisteps-form mb-9">
+          <!--progress bar-->
+          <div class="row">
+            <div class="col-12 col-lg-8 mx-auto my-5">
+            </div>
+          </div>
+          <!--form panels-->
+          <div class="row">
+            <div class="col-12 col-lg-8 m-auto">
+              <div class="card">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                  <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
+                    <div class="multisteps-form__progress">
+                      <button class="multisteps-form__progress-btn js-active" type="button" title="Contacts List Settings">
+                        <span>Contact List Setup</span>
+                      </button>
+                      
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form class="multisteps-form__form" role="form" method="POST" enctype="multipart/form-data" id="user-create">
+                    {% csrf_token %}
+
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white js-active" data-animation="FadeIn">
+                      <h5 class="font-weight-bolder mb-0">Contacts List Setup</h5>
+                      <p class="mb-0 text-sm">Mandatory information</p>
+                      <div class="multisteps-form__content" id="pageone">
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Contacts List Name *</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="text" name="list_name" required/>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Campaign *</label>
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" name="camp" id="camp" placeholder="Choose a Campaign" required>
+                                  <option value="">Select Campaign</option> <!-- Blank option for initial selection -->
+                                  {% for camp in campaigns %}
+                                    <option value="{{camp.id}}">{{camp.name}}</option>
+                                  {% endfor%}
+                          
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        
+
+                        <div class="row mt-3">
+
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">List Source</label>
+
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" name="source" id="source" placeholder="Choose a Source" required>
+                                  <option value="">Select Source</option> <!-- Blank option for initial selection -->
+                                  {% for source in sources %}
+                                    <option value="{{source.id}}">{{source.name}}</option>
+                                  {% endfor%}
+                          
+                              </select>
+                            </div>
+                          </div>
+
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Skip Tracing</label>
+
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" name="skiptracing" id="skiptracing" placeholder="Choose a Source" required>
+                                  <option value="">Select Skip tracing</option> <!-- Blank option for initial selection -->
+                                  {% for source in skiptracing %}
+                                    <option value="{{source.id}}">{{source.name}}</option>
+                                  {% endfor%}
+                          
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12 col-sm-6">
+                              <label class="form-label">Number of Contacts</label>
+                              <div class="input-group input-group-dynamic">
+                                <input class="multisteps-form__input form-control" type="number"  min=0  value=0 name="contacts" required/>
+                              </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                              <label class="form-label">Contact List Status *</label>
+                              <div class="input-group input-group-dynamic">
+                                <select class="form-control" name="status" id="status" placeholder="Choose a Status" required>
+                                    <option value="">Select Status</option> <!-- Blank option for initial selection -->
+                                    {% for key,value in statuses %}
+                                      <option value="{{key}}">{{value}}</option>
+                                    {% endfor%}
+                            
+                                </select>
+                              </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-3">
+
+                          <label class="form-label">States *</label>
+                          <div class="input-group input-group-dynamic">
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" id="state" name="states" multiple>
+                                <option value="">Select State</option> <!-- Blank option for initial selection -->
+
+                                {% for key,value in states %}
+                                  <option value={{value}}>{{value}}</option>
+                                {% endfor %}
+                              </select>                                  
+                            </div>                    
+                          </div>
+                            
+                        </div>
+
+
+                        
+
+                        <div class="button-row d-flex mt-4">
+                          <button class="btn bg-gradient-info ms-auto mb-0" type="submit" title="Save">Save</button>
+                        </div>
+                      </div>
+                    </div>
+
+
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Kanban scripts -->
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById('camp')) {
+            var camp = document.getElementById('camp');
+            const example = new Choices(camp, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('source')) {
+          var source = document.getElementById('source');
+          const example = new Choices(source, {
+              searchEnabled: true,
+              searchChoices: true,
+              searchFields: ['label', 'value'], // Fields to search within
+              searchPlaceholderValue: 'Search...', // Placeholder for the search input
+              shouldSort: false, // Disable sorting of choices
+              itemSelectText: '', // Text shown in the dropdown when an item is selected
+              fuseOptions: {
+                  includeScore: true, // Include score in search results
+                  threshold: 0.3, // Match threshold for search results
+                  keys: ['label', 'value'] // Fields to search within
+              }
+          });
+      }
+
+      if (document.getElementById('skiptracing')) {
+        var skiptracing = document.getElementById('skiptracing');
+        const example = new Choices(skiptracing, {
+            searchEnabled: true,
+            searchChoices: true,
+            searchFields: ['label', 'value'], // Fields to search within
+            searchPlaceholderValue: 'Search...', // Placeholder for the search input
+            shouldSort: false, // Disable sorting of choices
+            itemSelectText: '', // Text shown in the dropdown when an item is selected
+            fuseOptions: {
+                includeScore: true, // Include score in search results
+                threshold: 0.3, // Match threshold for search results
+                keys: ['label', 'value'] // Fields to search within
+            }
+        });
+    }
+
+
+    if (document.getElementById('status')) {
+      var status = document.getElementById('status');
+      const example = new Choices(status, {
+          searchEnabled: false,
+          searchChoices: false,
+          shouldSort: false, // Disable sorting of choices
+          itemSelectText: '', // Text shown in the dropdown when an item is selected
+          fuseOptions: {
+              includeScore: true, // Include score in search results
+              threshold: 0.3, // Match threshold for search results
+              keys: ['label', 'value'] // Fields to search within
+          }
+      });
+  }
+    
+
+    if (document.getElementById('state')) {
+      var state = document.getElementById('state');
+      const example = new Choices(state, {
+        searchEnabled: true,
+        delimiter: ',',
+        editItems: true,
+        maxItemCount: 10,
+        removeItemButton: true,
+        addItems: true,
+        searchChoices: true,
+      });
+    }
+
+        
+
+
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+{% endblock %}

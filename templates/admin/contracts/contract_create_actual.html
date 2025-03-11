@@ -1,0 +1,273 @@
+{% extends 'base-admin.html' %}
+
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">assignment</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Contract Details</h5>
+                </div>
+                <div class="card-header">
+                    <h6>Contract Details</h6>
+                </div>
+                <div class="card-body pt-0">
+                    <form role="form" class="text-start" method="POST" id="lead-form">  
+                        {% csrf_token %}
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Client Name *</label>
+                                    <input type="text" class="form-control" name="client_name" id="client_name"  required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Client Phone *</label>
+                                    <input type="text" class="form-control" name="client_phone" id="client_phone"  required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Client Email *</label>
+                                    <input type="text" class="form-control" name="client_email" id="client_email"  required>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Checkout Link *</label>
+                                    <input type="url" class="form-control" name="checkout_link" id="checkout_link"  required>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">Number of VAs *</label>
+                                    <input type="number" class="form-control" name="count_va" id="count_va" value="{{package.count_va}}"  required>
+
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">VAs Rate *</label>
+                                    <input type="number" class="form-control" name="rate_va" id="rate_va" value="{{package.rate_va}}" required>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">Number of LMs *</label>
+                                    <input type="number" class="form-control" name="count_lm" id="count_lm" value="{{package.count_lm}}" required>
+
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">LMs Rate *</label>
+                                    <input type="number" class="form-control" name="rate_lm" id="rate_lm" value="{{package.rate_lm}}" required>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">Number of ACQs *</label>
+                                    <input type="number" class="form-control" name="count_acq" id="count_acq" value="{{package.count_acq}}" required>
+
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">ACQs Rate *</label>
+                                    <input type="number" class="form-control" name="rate_acq" id="rate_acq" value="{{package.rate_acq}}" required>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">Number of DMs *</label>
+                                    <input type="number" class="form-control" name="count_dm" id="count_dm" value="{{package.count_dm}}" required>
+
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">DMs Rate *</label>
+                                    <input type="number" class="form-control" name="rate_dm" id="rate_dm" value="{{package.rate_dm}}" required>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <br><br>
+
+
+                        <textarea id="editor" name="editor">{{sample.description}}</textarea>
+
+
+
+             
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-info">Create</button>
+                            </div>
+                        </div>
+                    </form>
+ 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script>
+    // Initialize CKEditor on the textarea
+    CKEDITOR.replace('editor', {
+        height: 800, // Optional: Customize editor height
+        toolbar: [
+            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+            { name: 'styles', items: ['Styles', 'Format', 'FontSize'] }, // Add FontSize to styles toolbar
+            
+            
+            ]
+    });
+</script>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById('campaign')) {
+            var campaign = document.getElementById('campaign');
+            const example = new Choices(campaign, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+        
+
+        if (document.getElementById('dialer_list')) {
+            var dialer_list = document.getElementById('dialer_list');
+            const example = new Choices(dialer_list, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('property_type')) {
+            var property_type = document.getElementById('property_type');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('timeline')) {
+            var timeline = document.getElementById('timeline');
+            const example = new Choices(timeline, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+    });
+
+</script>
+
+
+
+
+
+{% endblock %}

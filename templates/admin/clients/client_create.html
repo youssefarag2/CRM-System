@@ -1,0 +1,426 @@
+{% extends 'base-admin.html' %}
+
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+
+
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="multisteps-form mb-9">
+          <!--progress bar-->
+          <div class="row">
+            <div class="col-12 col-lg-8 mx-auto my-5">
+            </div>
+          </div>
+          <!--form panels-->
+          <div class="row">
+            <div class="col-12 col-lg-8 m-auto">
+              <div class="card">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                  <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
+                    <div class="multisteps-form__progress">
+                      <button class="multisteps-form__progress-btn js-active" type="button" title="Account Info">
+                        <span>Account Info</span>
+                      </button>
+                      <button class="multisteps-form__progress-btn" type="button" title="Work Info">Work</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form class="multisteps-form__form" role="form" method="POST" enctype="multipart/form-data" id="user-create">
+                    {% csrf_token %}
+
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white js-active" data-animation="FadeIn">
+                      <h5 class="font-weight-bolder mb-0">Account Info</h5>
+                      <p class="mb-0 text-sm">Mandatory information</p>
+                      <div class="multisteps-form__content" id="pageone">
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Full Name *</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="text" name="full_name" required/>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Email *</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="email" name="email" required/>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Username *</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="text" name="username" required/>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Password *</label>
+
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="text" name="password" required/>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12 col-sm-6">
+                              <label class="form-label">Phone number *</label>
+                              <div class="input-group input-group-dynamic">
+                                <input class="multisteps-form__input form-control" type="phone" name="phone" required/>
+                              </div>
+                            </div>
+                            <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                                <label class="form-label">Residence *</label>
+                                <div class="input-group input-group-dynamic">
+                                    <select class="form-control" name="residence" id="residence" placeholder="search">
+                                        <option value="">Select State</option> <!-- Blank option for initial selection -->
+                                        {% for key,value in us_states.items %}
+                                          <option value="{{key}}">{{value}}</option>
+                                        {% endfor%}
+
+                                    </select>
+                                </div>
+                            </div>
+
+                      </div>
+
+                        <div class="button-row d-flex mt-4">
+                          <button id="nextButton1" class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" type="button" title="Next" disabled>Next</button>
+                        </div>
+                      </div>
+                    </div>
+ 
+                    <!--single form panel--> 
+                    <div class="multisteps-form__panel border-radius-xl bg-white" data-animation="FadeIn">
+                      <h5 class="font-weight-bolder mb-0">Work Information</h5>
+                      <p class="mb-0 text-sm">Please provide all the details asked below</p>
+                      <div class="multisteps-form__content">
+
+
+                        <div class="row mt-3">
+
+                              <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                                  <label class="form-label">Joining Date *</label>
+                                  <div class="input-group input-group-dynamic">
+                                      <input class="multisteps-form__input form-control" type="date" name="joining_date" required/>
+                                  </div>
+                              </div>
+
+
+                              <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                                <label class="form-label">How did we reach him? *</label>
+                                <div class="input-group input-group-dynamic">
+                                  <select class="form-control" name="discovery_method" id="choices-reach" placeholder="search" required>
+                                      <option value="">Select..</option> <!-- Blank option for initial selection -->
+                                      {% for key,value in discovery_options.items %}
+                                        <option value="{{key}}">{{value}}</option>
+                                      {% endfor %}
+                                        
+                                  </select>
+                                </div>                              
+                              </div>
+                              
+                        </div>
+
+                        <div class="row mt-3">
+
+                            <label class="form-label">Affiliate *</label>
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" name="affiliate" id="affiliate" placeholder="search" required>
+                                  <option value="0">None</option> <!-- Blank option for initial selection -->
+                                  {% for aff in affiliates %}
+                                    <option value="{{aff.id}}">{{aff.full_name}}</option>
+                                  {% endfor %}
+                                    
+                              </select>
+                            </div>   
+                      
+                        </div>
+
+                        <div class="row mt-3">
+
+                             <label class="form-label">Services *</label>
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" id="choices-services" name="services" multiple required>
+                                {% for service in services %}
+                                  <option value={{service.id}}>{{service.name}}</option>
+                                {% endfor %}
+                              </select>                                  
+                            </div>
+                        
+                        </div>
+
+
+       
+
+                        <div class="row">    
+
+                          <div class="button-row d-flex mt-4 col-12">
+                            <button class="btn bg-gradient-light mb-0 js-btn-prev" type="button" title="Prev">Prev</button>
+                            <button class="btn bg-gradient-info ms-auto mb-0" type="submit" title="Save">Save</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nextButton1 = document.getElementById('nextButton1');
+    const nextButton2 = document.getElementById('nextButton2');
+
+    const validatePageOne = () => {
+        const fullName = document.querySelector('input[name="full_name"]').value.trim();
+        const phoneName = document.querySelector('input[name="email"]').value.trim();
+        const username = document.querySelector('input[name="username"]').value.trim();
+        const password = document.querySelector('input[name="password"]').value.trim();
+
+        if (fullName && phoneName && username && password) {
+            nextButton1.disabled = false;
+        } else {
+            nextButton1.disabled = true;
+        }
+    };
+
+    const validatePageTwo = () => {
+        const phone = document.querySelector('input[name="phone"]').value.trim();
+        const discord = document.querySelector('input[name="discord"]').value.trim();
+        const residence = document.querySelector('select[name="residence"]').value.trim();
+        const birthDate = document.querySelector('input[name="birth_date"]').value.trim();
+
+        if (phone && discord && residence && birthDate) {
+            nextButton2.disabled = false;
+        } else {
+            nextButton2.disabled = true;
+        }
+    };
+
+
+
+    document.querySelectorAll('input[name="full_name"], input[name="email"], input[name="username"], input[name="password"]').forEach(input => {
+        input.addEventListener('input', validatePageOne);
+    });
+
+    document.querySelectorAll('input[name="phone"], input[name="discord"], select[name="residence"], input[name="birth_date"]').forEach(input => {
+        input.addEventListener('input', validatePageTwo);
+    });
+
+
+});
+
+
+</script>
+
+
+
+<!-- Kanban scripts -->
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById('residence')) {
+            var residence = document.getElementById('residence');
+            const example = new Choices(residence, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('role')) {
+            var role = document.getElementById('role');
+            const example = new Choices(role, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('choices-services')) {
+          var services = document.getElementById('choices-services');
+          const example = new Choices(services, {
+            delimiter: ',',
+            editItems: true,
+            maxItemCount: 5,
+            removeItemButton: true,
+            addItems: true,
+            searchEnabled: true,
+            searchChoices: true,
+            renderChoiceLimit: 10, // This will limit the number of choices displayed at once
+          });
+        }
+
+        if (document.getElementById('affiliate')) {
+          var affiliate = document.getElementById('affiliate');
+          const example = new Choices(affiliate, {
+              searchEnabled: true,
+              searchChoices: true,
+              searchFields: ['label', 'value'], // Fields to search within
+              searchPlaceholderValue: 'Search...', // Placeholder for the search input
+              shouldSort: false, // Disable sorting of choices
+              itemSelectText: '', // Text shown in the dropdown when an item is selected
+              fuseOptions: {
+                  includeScore: true, // Include score in search results
+                  threshold: 0.3, // Match threshold for search results
+                  keys: ['label', 'value'] // Fields to search within
+              }
+          });
+      }
+
+        if (document.getElementById('choices-reach')) {
+          var reach = document.getElementById('choices-reach');
+          const example = new Choices(reach, {
+            delimiter: ',',
+            editItems: true,
+            maxItemCount: 5,
+            removeItemButton: true,
+            addItems: true,
+            searchEnabled: true,
+            searchChoices: true,
+          });
+        }
+
+
+
+
+    });
+
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const hourlyRateCheckbox = document.getElementById('hourly_rate_checkbox');
+        const monthlySalaryCheckbox = document.getElementById('monthly_salary_checkbox');
+        const hourlyRateInput = document.getElementById('hourly_rate_input');
+        const monthlySalaryInput = document.getElementById('monthly_salary_input');
+    
+
+        hourlyRateCheckbox.checked = true; // Set hourly rate checkbox as checked initially
+        hourlyRateInput.disabled = false;
+        monthlySalaryInput.disabled = true;
+        monthlySalaryCheckbox.checked = false;
+        // Function to handle checkbox changes
+        hourlyRateCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                hourlyRateInput.disabled = false;
+                monthlySalaryInput.disabled = true;
+                monthlySalaryCheckbox.checked = false;
+            } else {
+                this.checked = true; // Prevent unchecking
+            }
+        });
+    
+        monthlySalaryCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                monthlySalaryInput.disabled = false;
+                hourlyRateInput.disabled = true;
+                hourlyRateCheckbox.checked = false;
+            } else {
+                this.checked = true; // Prevent unchecking
+            }
+        });
+    });
+    
+
+
+</script>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('fileInput');
+        const fileListDiv = document.getElementById('fileList');
+    
+        fileInput.addEventListener('change', function() {
+            const files = this.files;
+            if (files.length > 0) {
+                const file = files[0];
+                fileListDiv.innerHTML = `<p>Selected File: ${file.name}</p>`;
+            } else {
+                fileListDiv.innerHTML = ''; // Clear the file list if no file is selected
+            }
+        });
+    });
+    
+</script>
+
+
+
+{% endblock %}

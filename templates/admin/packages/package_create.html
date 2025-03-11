@@ -1,0 +1,266 @@
+{% extends 'base-admin.html' %}
+
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+
+
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="multisteps-form mb-9">
+          <!--progress bar-->
+          <div class="row">
+            <div class="col-12 col-lg-8 mx-auto my-5">
+            </div>
+          </div>
+          <!--form panels-->
+          <div class="row">
+            <div class="col-12 col-lg-8 m-auto">
+              <div class="card">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                  <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
+                    <div class="multisteps-form__progress">
+                      <button class="multisteps-form__progress-btn js-active" type="button" title="Package Info">
+                        <span>Package Info</span>
+                      </button>
+                      <button class="multisteps-form__progress-btn" type="button" title="VAs">Virtual Assistants</button>
+                      <button class="multisteps-form__progress-btn" type="button" title="LMs">Lead Managers</button>
+                      <button class="multisteps-form__progress-btn" type="button" title="ACQs">Acquisitions</button>
+                      <button class="multisteps-form__progress-btn" type="button" title="DMs">Data Managers</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form class="multisteps-form__form" role="form" method="POST" enctype="multipart/form-data" id="user-create">
+                    {% csrf_token %}
+
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white js-active" data-animation="FadeIn">
+                      <h5 class="font-weight-bolder mb-0">Package Info</h5>
+                      <p class="mb-0 text-sm">Mandatory information</p>
+                      <div class="multisteps-form__content" id="pageone">
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Package Name *</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="text" name="name" required/>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Package Description *</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="text" name="description" required/>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <div class="button-row d-flex mt-4">
+                          <button id="nextButton1" class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" type="button" title="Next" disabled>Next</button>
+                        </div>
+                      </div>
+                    </div>
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white" data-animation="FadeIn">
+                      <h5 class="font-weight-bold mb-0">Virtual Assistants</h5>
+                      <p class="mb-0 text-sm">Virtual Assistants Info</p>
+                      <div class="multisteps-form__content">
+                        <div class="row mt-3">
+                            <div class="col-12 col-sm-6">
+                              <label class="form-label">Number of Agents *</label>
+                              <div class="input-group input-group-dynamic">
+                                <input class="multisteps-form__input form-control" type="number" step="0.5" placeholder="0.5 for a part-time caller"   name="count_va" required/>
+                              </div>
+                            </div>
+                            <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                                <label class="form-label">Rate *</label>
+                                <div class="input-group input-group-dynamic">
+                                  <input class="multisteps-form__input form-control" type="number" step="0.5" value="0" name="rate_va" required/>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="button-row d-flex mt-4">
+                          <button class="btn bg-gradient-light mb-0 js-btn-prev" type="button" title="Prev">Prev</button>
+                          <button id="nextButton2" class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" type="button" title="Next" disabled>Next</button>
+                        </div>
+                      </div>
+                    </div>
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white" data-animation="FadeIn">
+                      <h5 class="font-weight-bold mb-0">Lead Managers</h5>
+                      <p class="mb-0 text-sm">Lead Managers Info</p>
+                      <div class="multisteps-form__content">
+                        <div class="row mt-3">
+                            <div class="col-12 col-sm-6">
+                              <label class="form-label">Number of Agents *</label>
+                              <div class="input-group input-group-dynamic">
+                                <input class="multisteps-form__input form-control" type="number"   step="0.5" placeholder="0.5 for a part-time caller" name="count_lm" required/>
+                              </div>
+                            </div>
+                            <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                                <label class="form-label">Rate *</label>
+                                <div class="input-group input-group-dynamic">
+                                  <input class="multisteps-form__input form-control" type="number" step="0.5" value="0" name="rate_lm" required/>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                        
+                        <div class="row">
+                          <div class="button-row d-flex mt-4 col-12">
+                            <button class="btn bg-gradient-light mb-0 js-btn-prev" type="button" title="Prev">Prev</button>
+                            <button id="nextButton3" class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" type="button" title="Next">Next</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+
+                    <div class="multisteps-form__panel border-radius-xl bg-white" data-animation="FadeIn">
+                      <h5 class="font-weight-bold mb-0">Acquisition Managers</h5>
+                      <p class="mb-0 text-sm">Acquisition Managers Info</p>
+                      <div class="multisteps-form__content">
+                        <div class="row mt-3">
+                            <div class="col-12 col-sm-6">
+                              <label class="form-label">Number of Agents *</label>
+                              <div class="input-group input-group-dynamic">
+                                <input class="multisteps-form__input form-control" type="number"   step="0.5" placeholder="0.5 for a part-time caller" name="count_acq" required/>
+                              </div>
+                            </div>
+                            <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                                <label class="form-label">Rate *</label>
+                                <div class="input-group input-group-dynamic">
+                                  <input class="multisteps-form__input form-control" type="number" step="0.5" value="0" name="rate_acq" required/>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                        
+                        <div class="row">
+                          <div class="button-row d-flex mt-4 col-12">
+                            <button class="btn bg-gradient-light mb-0 js-btn-prev" type="button" title="Prev">Prev</button>
+                            <button id="nextButton3" class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" type="button" title="Next">Next</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white h-100" data-animation="FadeIn">
+                      <h5 class="font-weight-bold mb-0">Data Managers</h5>
+                      <p class="mb-0 text-sm">Data Managers Info</p>
+                      <div class="multisteps-form__content">
+                        <div class="row mt-3">
+                            <div class="col-12 col-sm-6">
+                              <label class="form-label">Number of Agents *</label>
+                              <div class="input-group input-group-dynamic">
+                                <input class="multisteps-form__input form-control" type="number"  step="0.5" placeholder="0.5 for a part-time caller" name="count_dm" required/>
+                              </div>
+                            </div>
+                            <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                                <label class="form-label">Rate *</label>
+                                <div class="input-group input-group-dynamic">
+                                  <input class="multisteps-form__input form-control" type="number" step="0.5" value="0" name="rate_dm" required/>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="button-row d-flex mt-4">
+                          <button class="btn bg-gradient-light mb-0 js-btn-prev" type="button" title="Prev">Prev</button>
+                          <button class="btn bg-gradient-info ms-auto mb-0" type="submit" title="Save">Save</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+<script>
+
+
+ 
+
+document.addEventListener('DOMContentLoaded', function() {
+    const nextButton1 = document.getElementById('nextButton1');
+    const nextButton2 = document.getElementById('nextButton2');
+    const nextButton3 = document.getElementById('nextButton3');
+    nextButton1.disabled = false;
+    nextButton2.disabled = false;
+    nextButton3.disabled = false;
+ 
+
+});
+
+ 
+
+</script>
+
+
+
+<!-- Kanban scripts -->
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+
+ 
+ 
+
+
+
+ 
+
+
+{% endblock %}

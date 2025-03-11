@@ -1,0 +1,599 @@
+{% extends 'base-admin.html' %}
+
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+<form role="form" class="text-start" enctype="multipart/form-data" method="POST" id="lead-form" >  
+{% csrf_token %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">house</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Real Estate Preferences</h5>
+                </div>
+                <div class="card-header">
+                    <h6>Your Preferences</h6>
+                </div>
+                <div class="card-body pt-0">
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Contract ID *</label>
+                                    <input type="text" class="form-control" name="contract_id" id="agent_id"  value= " {{contract_id}} " readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" name="name" id="name" value="{{pref.name}}" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Phone Number *</label>
+                                    <input type="text" class="form-control" name="phone" id="phone" value="{{pref.phone}}" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Email *</label>
+                                    <input type="email" class="form-control" name="email" id="phone"  value="{{pref.email}}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Company Name *</label>
+                                    <input type="text" class="form-control" name="company_name" id="company_name" value="{{pref.company_name}}" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Do you accept remodeled properties? *</label>
+                                    <select class="form-control" name="remodeled" id="remodeled" required>
+
+                                        {% if pref.remodeled %}
+                                        <option value="yes">Yes</option>
+                                        {% else %}
+                                        <option value="no">No</option>
+                                        {% endif %}
+
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Do you accept On Market properties? *</label>
+                                    <select class="form-control" name="on_market" id="on_market" required>
+
+                                        {% if pref.on_market %}
+                                        <option value="yes">Yes</option>
+                                        {% else %}
+                                        <option value="no">No</option>
+                                        {% endif %}
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Do you accept listed by owner properties? *</label>
+                                    <select class="form-control" name="listed_owner" id="listed_owner" required>
+
+                                        {% if pref.listed_owner %}
+                                        <option value="yes">Yes</option>
+                                        {% else %}
+                                        <option value="no">No</option>
+                                        {% endif %}
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Do you cover closing fees? *</label>
+                                    <select class="form-control" name="closing_fees" id="closing_fees" required>
+
+                                        {% if pref.closing_fees %}
+                                        <option value="yes">Yes</option>
+                                        {% else %}
+                                        <option value="no">No</option>
+                                        {% endif %}
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Do you cover Realtor Fees & Commissions? *</label>
+                                    <select class="form-control" name="realtor_fees" id="realtor_fees" required>
+
+                                        {% if pref.realtor_fees %}
+                                        <option value="yes">Yes</option>
+                                        {% else %}
+                                        <option value="no">No</option>
+                                        {% endif %}
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Do you have a Real Estate License? *</label>
+                                    <select class="form-control" name="re_license" id="re_license" required>
+
+                                        {% if pref.re_license %}
+                                        <option value="yes">Yes</option>
+                                        {% else %}
+                                        <option value="no">No</option>
+                                        {% endif %}
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Can callers mention your company's name on call? (if needed)*</label>
+                                    <select class="form-control" name="company_mention" id="company_mention" required>
+
+                                        {% if pref.mention_company %}
+                                        <option value="yes">Yes</option>
+                                        {% else %}
+                                        <option value="no">No</option>
+                                        {% endif %}
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Property type you accept *</label>
+                                    <select class="form-control" id="property_type" name="property_type_re" multiple required>
+                                        {% for key,value in property_types_re %}
+                                            <option value={{key}} {% if key in pref.property_type_re %} selected {%endif %}>{{value}}</option>
+                                        {% endfor %}
+
+                                      </select> 
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+
+                                <div class="input-group input-group-static is-valid">
+                                    <label>Owner Type *</label>
+                                    <select class="form-control" name="owner_type" id="owner_type" required>
+
+                                       
+                                            <option value="{{pref.owner_type}}">{{pref.get_owner_type_display}}</option>
+                                        
+                                        
+                                    </select>                            
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <div class="input-group input-group-dynamic">
+                                        <label>Price range for your customer's property *</label>
+
+                                        <select class="form-control" id="price_ranges" name="price_ranges" multiple required>
+                                            {% for key,value in prices %}
+                                            <option value={{key}} {% if key in pref.price_range %} selected {%endif %}>{{value}}</option>
+                                            {% endfor %}
+
+                                        </select>                                  
+                                    </div>                               
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+
+                                <div class="input-group input-group-static is-valid">
+                                    <label>Lots Type *</label>
+                                    <select class="form-control" name="lots_type" id="lots_type" required>
+
+                                    
+                                        <option value={{pref.lots_type}}>{{pref.get_lots_type_display}}</option>
+                                   
+                                        
+                                    </select>                            
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <div class="input-group input-group-dynamic">
+                                        <label>Residential Property Types *</label>
+
+                                        <select class="form-control" id="res_types" name="res_types" multiple required>
+                                            {% for key,value in residential_types %}
+                                                <option value={{key}} {% if key in pref.res_type %} selected {% endif %}>{{value}}</option>
+                                            {% endfor %}
+
+
+                                        </select>                                  
+                                    </div>                               
+                                </div>
+                            </div>
+                        
+
+                            
+
+                        </div>
+
+                        <div class="row mt-4">
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Preferred equity % *</label>
+                                    <input type="text" class="form-control" name="equity" id="equity"  value="{{pref.equity}}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Do you accept above market value properties? (if yes, please specify the percentage) *</label>
+                                    <input type="text" class="form-control" name="above_market_perc" id="above_market_perc"  value="{{pref.above_market_perc}}"  required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+
+                            
+
+                                <div class="input-group input-group-static">
+                                    <label>Coverage (counties/cities/zip codes) *</label>
+                                    <textarea class="form-control" rows="2" name="coverage" id="coverage" required>{{pref.coverage}}</textarea>
+                                </div>
+
+                           
+                        </div>
+
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>Qualifying questions to be added to the script (fill only if script is not attached below or some questions are missing)</label>
+                                    <textarea class="form-control" rows="3" name="qualifying_questions" id="qualifying_questions" >{{pref.questions}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>Extra Notes </label>
+                                    <textarea class="form-control" rows="3" name="extra_notes" id="extra_notes">{{pref.extra_notes}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    {% if pref.script_file %}
+                                        <a disabled href="{{ pref.script_file.url }}" download class="btn btn-info d-flex align-items-center">
+                                            <i class="material-icons mr-3">cloud_download</i> &nbsp;Download Script
+                                        </a>
+                                    {% else %}
+                                    <a href="javascript:;" download class="btn btn-danger d-flex align-items-center">
+                                        <i class="material-icons mr-3">cloud_download</i> &nbsp;No Script uploaded
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+
+                        
+                </div>
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</form>
+
+
+
+ 
+
+ 
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        
+
+
+
+
+
+
+        if (document.getElementById('company_mention')) {
+            var property_type = document.getElementById('company_mention');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+
+        
+ 
+
+         
+
+
+        if (document.getElementById('owner_type')) {
+            var property_type = document.getElementById('owner_type');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+
+        if (document.getElementById('remodeled')) {
+            var property_type = document.getElementById('remodeled');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('on_market')) {
+            var property_type = document.getElementById('on_market');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('listed_owner')) {
+            var property_type = document.getElementById('listed_owner');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('closing_fees')) {
+            var property_type = document.getElementById('closing_fees');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('realtor_fees')) {
+            var property_type = document.getElementById('realtor_fees');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('re_license')) {
+            var property_type = document.getElementById('re_license');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('lots_type')) {
+            var property_type = document.getElementById('lots_type');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+       
+        if (document.getElementById('property_type')) {
+            var types = document.getElementById('property_type');
+            const example = new Choices(types, {
+              delimiter: ',',
+              editItems: true,
+              maxItemCount: 6,
+              removeItemButton: true,
+              addItems: true,
+              searchEnabled: true,
+              searchChoices: true,
+              renderChoiceLimit: 10, // This will limit the number of choices displayed at once
+            });
+          }
+
+          if (document.getElementById('res_types')) {
+            var types = document.getElementById('res_types');
+            const example = new Choices(types, {
+              delimiter: ',',
+              editItems: true,
+              maxItemCount: 6,
+              removeItemButton: true,
+              addItems: true,
+              searchEnabled: true,
+              searchChoices: true,
+              renderChoiceLimit: 10, // This will limit the number of choices displayed at once
+            });
+          }
+
+        if (document.getElementById('price_ranges')) {
+            var types = document.getElementById('price_ranges');
+            const example = new Choices(types, {
+              delimiter: ',',
+              editItems: true,
+              maxItemCount: 6,
+              removeItemButton: true,
+              addItems: true,
+              searchEnabled: true,
+              searchChoices: true,
+              renderChoiceLimit: 10, // This will limit the number of choices displayed at once
+            });
+          }
+
+        
+    });
+
+</script>
+
+
+
+
+
+{% endblock %}

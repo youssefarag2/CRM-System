@@ -1,0 +1,509 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+<form role="form" class="text-start" method="POST" id="lead-form" >  
+{% csrf_token %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">house</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Lead Report</h5>
+                </div>
+                <div class="card-header">
+                    <h6>Lead Info</h6>
+                </div>
+                <div class="card-body pt-0">
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Lead ID *</label>
+                                    <input type="text" class="form-control" name="agent_id" id="agent_id"  value= " {{lead.lead_id}} " readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">Campaign Name *</label>
+                                    <select class="form-control" name="campaign" id="campaign"  readonly>
+                        
+                                        <option value="{{lead.campaign.id}}" selected>{{lead.campaign.name}}</option>
+
+                            
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                         
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Prospect Name *</label>
+                                    <input type="text" class="form-control" name="owner_name" id="owner_name" value="{{lead.seller_name}}" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Phone Number *</label>
+ 
+                                    <input type="tel" class="form-control" name="phone_number" id="phone_number" value="{{lead.seller_phone}}" required>
+                                 </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Email </label>
+ 
+                                    <input type="email" class="form-control" name="email" id="email" value="{{lead.seller_email}}" >
+ 
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Property Type *</label>
+                                    <select class="form-control" name="property_type" id="property_type" required>
+
+                                        <option value="">Select Property Type</option>
+                                        {% for type in property_types %}
+                                            {% if type.0 == lead.property_type %}
+                                                <option value="{{type.0}}" selected>{{type.1}}</option>
+                                            {% else %}
+                                                <option value="{{type.0}}">{{type.1}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="input-group input-group-static is-valid">
+                                <label>Address *</label>
+                                <input type="text" class="form-control" name="address" id="property_address" value="{{lead.property_address}}"required>
+                            </div>
+
+                        </div>
+                        <div class="row mt-4">
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Asking Price *</label>
+                                    <input type="text" class="form-control" name="asking_price" id="asking_price" value="{{lead.asking_price}}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Market Value *</label>
+                                    <input type="text" class="form-control" name="market_value" id="market_value" value="{{lead.market_value}}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Reason *</label>
+                                    <input type="text" class="form-control" name="reason" id="reason" value="{{lead.reason}}" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Timeline *</label>
+                                    <select class="form-control" name="timeline" id="timeline" required>
+                                    <option value="">Select Timeline</option> <!-- Blank option for initial selection -->
+                                    {% for time in timelines %}
+                                        {% if lead.timeline == time.0 %}
+                                            <option value="{{time.0}}" selected>{{time.1}}</option>
+                                        {% else %}
+                                            <option value="{{time.0}}">{{time.1}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Property URL *</label>
+                                    <input type="text" class="form-control" name="zillow_url" id="zillow_url" value="{{lead.property_url}}" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Callback time *</label>
+                                    <input type="text" class="form-control" name="callback_time" id="call_back_time" value="{{lead.callback}}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>General Info *</label>
+                                    <textarea class="form-control" rows="5" name="general_info" id="general_info" required>{{lead.general_info}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>Extra Info</label>
+                                    <textarea class="form-control" rows="2" name="extra_info" id="extra_info">{{lead.extra_notes}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="longitude" id="longitude" value={{lead.longitude}}>
+                        <input type="hidden" name="latitude" id="latitude" value={{lead.latitude}}>
+
+                    <hr>
+                    <div class="row mt-4">
+                        <div class="input-group input-group-static">
+                            <label>Lead Status</label>
+                            <select class="form-control" name="lead_status" id="lead_status"  required>
+                            {% for status in lead_status %}
+                                {% if status.0 == lead.status %}
+                                    <option value="{{ status.0 }}"  selected >{{ status.1 }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        
+                            </select>                                
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4">
+                        <div class="col-sm-12">
+                            {% if lead.status == "pending" %}
+                            <button type="submit" class="btn btn-info">Modify</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to calculate total percentage
+        function calculateTotalPercentage() {
+            let totalPercentage = 0.0;
+
+            // Select all the select elements
+            document.querySelectorAll('select[name$="_name"]').forEach(function(select) {
+                const percentageInput = document.querySelector(`input[name="${select.name.replace('_name', '_percentage')}"]`);
+
+                if (select.value === '1' && percentageInput) {
+                    // Add percentage if select value is '1'
+                    const percentageValue = parseFloat(percentageInput.value) || 0;
+                    totalPercentage += percentageValue;
+                }
+            });
+
+            // Update the total percentage display
+            const totalPercentageHeader = document.getElementById('total-percentage-header');
+            const hiddenTotalPercentage = document.getElementById('hidden-total-percentage');
+
+            totalPercentageHeader.textContent = `Total Percentage: ${totalPercentage.toFixed(2)}%`;
+
+            // Update the hidden input field
+            hiddenTotalPercentage.value = totalPercentage.toFixed(2);
+        }
+
+        // Calculate the total percentage on page load
+        calculateTotalPercentage();
+
+        // Add event listeners to select elements
+        document.querySelectorAll('select[name$="_name"]').forEach(function(select) {
+            select.addEventListener('change', calculateTotalPercentage);
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to calculate total percentage
+        function calculateTotalPercentage() {
+            let totalPercentage = 0.0;
+
+            // Select all the select elements with name starting with 'slot'
+            document.querySelectorAll('select[name^="slot"]').forEach(function(select) {
+                // Extract the base slot number
+                const slotNumber = select.name.replace('slot', '');
+
+                // Find the corresponding percentage input
+                const percentageInput = document.querySelector(`input[name="slot${slotNumber}_percentage"]`);
+
+                if (select.value === '1' && percentageInput) {
+                    // Add percentage if select value is '1'
+                    const percentageValue = parseFloat(percentageInput.value) || 0;
+                    totalPercentage += percentageValue;
+                }
+            });
+
+            // Update the total percentage display
+            document.getElementById('total-percentage-value').textContent = totalPercentage.toFixed(2);
+        }
+
+        // Calculate the total percentage on page load
+        calculateTotalPercentage();
+
+        // Add event listeners to select elements
+        document.querySelectorAll('select[name^="slot"]').forEach(function(select) {
+            select.addEventListener('change', calculateTotalPercentage);
+        });
+    });
+</script>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        
+
+
+
+
+
+
+
+
+
+
+        if (document.getElementById('campaign')) {
+            var campaign = document.getElementById('campaign');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        
+
+        if (document.getElementById('dialer_list')) {
+            var dialer_list = document.getElementById('dialer_list');
+            const example = new Choices(dialer_list, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('property_type')) {
+            var property_type = document.getElementById('property_type');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('timeline')) {
+            var timeline = document.getElementById('timeline');
+            const example = new Choices(timeline, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('lead_status')) {
+            var lead_status = document.getElementById('lead_status');
+            const example = new Choices(lead_status, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                
+            });
+        }
+
+
+        if (document.getElementById('slot1')) {
+            var campaign = document.getElementById('slot1');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                
+            });
+        }
+
+
+        if (document.getElementById('slot2')) {
+            var campaign = document.getElementById('slot2');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot3')) {
+            var campaign = document.getElementById('slot3');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+
+
+
+        if (document.getElementById('slot4')) {
+            var campaign = document.getElementById('slot4');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot5')) {
+            var campaign = document.getElementById('slot5');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot6')) {
+            var campaign = document.getElementById('slot6');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot7')) {
+            var campaign = document.getElementById('slot7');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot8')) {
+            var campaign = document.getElementById('slot8');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot9')) {
+            var campaign = document.getElementById('slot9');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot10')) {
+            var campaign = document.getElementById('slot10');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+
+
+        
+    });
+
+</script>
+
+
+
+
+
+{% endblock %}

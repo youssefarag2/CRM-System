@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+
+
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="multisteps-form mb-9">
+          <!--progress bar-->
+          <div class="row">
+            <div class="col-12 col-lg-8 mx-auto my-5">
+            </div>
+          </div>
+          <!--form panels-->
+          <div class="row">
+            <div class="col-12 col-lg-8 m-auto">
+              <div class="card">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                  <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
+                    <div class="multisteps-form__progress">
+                      <button class="multisteps-form__progress-btn js-active" type="button" title="Adjusting Hours Form">
+                        <span>Adjusting Hours Form</span>
+                      </button>
+                      
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                    
+                    <form class="multisteps-form__form" role="form" method="POST" enctype="multipart/form-data" id="single_form">
+                        {% csrf_token %}
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white js-active" data-animation="FadeIn">
+                      
+
+                        <h5 class="font-weight-bolder mb-0">Adjusting Hours Form</h5>
+                      <p class="mb-0 text-sm">Mandatory information</p>
+                      <div class="multisteps-form__content" id="pageone">
+
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Agent *</label>
+                            <div class="input-group input-group-dynamic">
+                                <select class="form-control" name="agent" id="agent" placeholder="Search by name or id" required>
+                                    <option value="">Search by name or id </option> <!-- Blank option for initial selection -->
+                                    {% for agent in agent_profiles %}
+                                      <option value="{{agent.id}}">{{agent.full_name}}</option>
+                                    {% endfor%}
+                            
+                                </select>
+                              </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Operation *</label>
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" name="operation" id="operation" placeholder="Select a Campaign" required>
+                                  <option value="">Select Operation</option> <!-- Blank option for initial selection -->
+                                    <option value="1">+ Add Minutes</option>
+                                    <option value="0">- Remove Minutes</option>
+
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Amount in Minutes *</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="number"  name="amount" placeholder="eg: 30" required/>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Reason *</label>
+
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="text"  name="reason" required/>
+
+                              </div>
+                          </div>
+                        </div>
+
+
+
+                        
+
+
+                        <div class="button-row d-flex mt-4">
+                            <button name="single_form" id="single_form" class="btn bg-gradient-info ms-auto mb-0" type="submit" title="Submit">Submit</button>
+                        </div>
+                      </div>
+                    </div>
+                </form>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Kanban scripts -->
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (document.getElementById('operation')) {
+        var operation = document.getElementById('operation');
+        const example = new Choices(operation, {
+            searchEnabled: false,
+            searchChoices: false,
+            shouldSort: false, // Disable sorting of choices
+            itemSelectText: '', // Text shown in the dropdown when an item is selected
+            fuseOptions: {
+                includeScore: true, // Include score in search results
+                threshold: 0.3, // Match threshold for search results
+                keys: ['label', 'value'] // Fields to search within
+            }
+        });
+
+        if (document.getElementById('agent')) {
+          var agent = document.getElementById('agent');
+          const example = new Choices(agent, {
+              searchEnabled: true,
+              searchChoices: true,
+              searchFields: ['label', 'value'], // Fields to search within
+              searchPlaceholderValue: 'Search...', // Placeholder for the search input
+              shouldSort: false, // Disable sorting of choices
+              itemSelectText: '', // Text shown in the dropdown when an item is selected
+              fuseOptions: {
+                  includeScore: true, // Include score in search results
+                  threshold: 0.3, // Match threshold for search results
+                  keys: ['label', 'value'] // Fields to search within
+              }
+          });
+      }
+
+     
+    }
+
+
+   
+
+
+    });
+
+</script>
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+
+{% load hours_filters %}
+
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container-fluid py-4">
+  <div class="d-sm-flex justify-content-between">
+    <div>
+      <button type="button" class="datepicker btn btn-outline-info dropdown-toggle">
+        {{full_month_name}},  {{year}}
+     </button>
+    </div>
+    <div class="d-flex">
+
+
+
+      <button class="btn btn-icon btn-outline-success ms-2 export" data-type="csv" type="button">
+        <i class="material-icons text-xs position-relative">archive</i>
+        Export CSV
+      </button>
+
+
+    </div>
+
+  </div>
+  <div class="calendar-container"> <!-- Add margin-top to separate from buttons -->
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Working Hours Table</h5>
+          <p class="text-sm mb-0">
+            Working Hours of {{full_month_name}}
+          </p>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-flush" id="datatable-search">
+            <thead class="thead-light">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Team</th>
+                <th>Rate</th>
+                <th>Ready</th>
+                <th>Meeting</th>
+                <th>Added Hours</th>
+                <th>Removed Hours</th>
+                <th>Deductions</th>
+                <th>Total Payable</th>
+                <th>Prepayments</th>
+                <th>Salary</th>
+                <th>MTD</th>
+                <th>Working Hours Report</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for agent,totals in status_totals.items %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+
+                    <p class="text-xs font-weight-normal ms-2 mb-0">#{{agent.id}}</p>
+                  </div>
+                </td>
+                <td class="font-weight-normal">
+                  <span class="my-2 text-xs">{{agent.full_name}}</span>
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                    {{agent.team}} 
+                </td>
+                <td class="text-xs font-weight-normal">
+                  ${{agent.hourly_rate|format_integer}}
+                </td>
+                <td class="text-xs font-weight-normal">
+                    {{ totals.ready }}
+                </td>
+                <td class="text-xs font-weight-normal">
+                  {{ totals.meeting }}
+                </td>
+                <td class="text-xs font-weight-normal">
+                  {{ totals.added_minutes }}
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                  {{ totals.removed_minutes }}
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                  {{ totals.deductions }}
+                </td>
+
+
+                <td class="text-xs font-weight-normal">
+                  {{ totals.total_payable }}
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                  ${{ totals.prepayments|format_integer }}
+                </td>
+                <td class="text-s font-weight-normal">
+                  {% if totals.salary >= 0 %}
+                  <span class="badge filter bg-gradient-success" data-color="success">
+                      ${{ totals.salary|format_integer }} 
+                  </span>
+                  {% else %}
+                  <span class="badge filter bg-gradient-danger" data-color="danger">
+                      -${{ totals.salary|format_abs_value }} 
+                  </span>
+                  {% endif %}
+              </td>
+
+              <td class="text-xs font-weight-normal">
+                <div class="d-flex align-items-center">
+                  <a href="/invoice/{{agent.id}}-{{month}}-{{year}}">
+                    <i class="material-icons position-relative text-lg">monetization_on</i>
+                  </a>
+                </div>
+
+                <td class="text-sm">
+                  <div class="d-flex align-items-center">
+                    <a href="/agent-hours/{{agent.id}}-{{month}}-{{year}}"
+                    data-tippy-content="Breakdown Report" data-tippy-placement="top">
+                      <i class="material-icons text-secondary position-relative text-lg">description</i>
+                    </a>
+                  </div>
+                </td>
+              </td>
+
+                
+
+               
+              </tr>
+              {% endfor %}
+              
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/rangePlugin.js"></script>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var button = document.querySelector(".datepicker");
+        var calendarContainer = document.querySelector(".calendar-container");
+  
+        // Set camp-id dynamically or statically here
+  
+        var fp = flatpickr(calendarContainer, {
+            dateFormat: "Y-m", // Internal format
+            altInput: true, // Use an alternative input
+            altFormat: "F Y", // Display format in the button
+            allowInput: true, // Allow manual input
+            onChange: function(selectedDates, dateStr, instance) {
+                var selectedDate = selectedDates[0];
+                if (selectedDate) {
+                    var formattedDate = instance.formatDate(selectedDate, "F Y");
+                    button.textContent = formattedDate;
+
+                    // Construct the URL and redirect
+                    var year = instance.formatDate(selectedDate, "Y");
+                    var month = instance.formatDate(selectedDate, "m");
+                    var redirectUrl = `/salaries-table-company/${month}-${year}`;
+                    window.location.href = redirectUrl; // Redirect to the constructed URL
+                }
+            },
+            onOpen: function() {
+                // Position the calendar container below the button
+                var rect = button.getBoundingClientRect();
+                calendarContainer.style.left = `${rect.left}px`;
+                calendarContainer.style.top = `${rect.bottom}px`;
+                calendarContainer.style.display = 'block';
+            },
+            onClose: function() {
+                // Hide the calendar when it is closed
+                calendarContainer.style.display = 'none';
+            }
+        });
+  
+        // Open flatpickr calendar when the button is clicked
+        button.addEventListener("click", function() {
+            fp.open();
+        });
+  
+        // Close flatpickr calendar when clicking outside
+        document.addEventListener("click", function(event) {
+            if (!fp.calendarContainer.contains(event.target) && !event.target.closest(".datepicker")) {
+                fp.close();
+            }
+        });
+    });
+  </script>
+
+  
+
+  <script>
+    const dataTableSearch = new simpleDatatables.DataTable("#datatable-search", {
+      searchable: true,
+      fixedHeight: false,
+    });
+  
+    // Custom function to decode all URL-encoded characters
+    function decodeAllData(data) {
+      return decodeURIComponent(data); // Decodes any URL-encoded characters
+    }
+  
+    document.querySelectorAll(".export").forEach(function(el) {
+      el.addEventListener("click", function(e) {
+        var type = el.dataset.type;
+  
+        var data = {
+          type: type,
+          filename: "salary-reports-company-{{month}}-{{year}}",
+        };
+  
+        if (type === "csv") {
+          data.columnDelimiter = ",";
+        }
+  
+        // Use the export functionality but prevent immediate download
+        const csvContent = dataTableSearch.export({
+          type: type,
+          download: false, // Prevent immediate download
+        });
+  
+        // Decode all URL-encoded characters
+        const decodedContent = decodeAllData(csvContent);
+  
+        // Now trigger the download with the decoded content
+        const blob = new Blob([decodedContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = data.filename + ".csv";
+        link.click();
+      });
+    });
+  </script>
+
+
+
+
+
+<script>
+  // Function to retrieve CSRF token from cookies
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+  }
+
+  function showDeleteConfirmation(account, campName, camp_id) {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn bg-gradient-danger',
+        cancelButton: 'btn bg-gradient-dark'
+      },
+      buttonsStyling: false
+    });
+
+    swalWithBootstrapButtons.fire({
+      title: `Delete ${campName}`,
+      html: `
+        <div class="card border-0 shadow-sm input-group input-group-static">
+          <form id="passwordForm" class="text-center p-3">
+            <input type="password" id="passwordInput" class="form-control" placeholder="Enter your password">
+          </form>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#28a745',
+      cancelButtonText: 'Cancel',
+      cancelButtonColor: '#dc3545',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const password = document.getElementById('passwordInput').value;
+        if (!password) {
+          Swal.showValidationMessage('Please enter your password');
+          return false;
+        }
+
+        // Fetch CSRF token from cookie
+        const csrftoken = getCookie('csrftoken');
+
+        // Send POST request to delete user
+        return fetch(`/campaign-delete/${camp_id}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken // Include CSRF token in headers
+          },
+          body: JSON.stringify({ password })// Include CSRF token in body
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Network response was not ok - ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .catch(error => {
+          Swal.showValidationMessage(`Request failed: ${error}`);
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+      didOpen: () => {
+        Swal.getConfirmButton().disabled = true;
+        document.getElementById('passwordInput').addEventListener('input', () => {
+          const password = document.getElementById('passwordInput').value;
+          Swal.getConfirmButton().disabled = password.length === 0;
+        });
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Campaign Deleted!',
+          icon: 'success'
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cancelled',
+          icon: 'error'
+        });
+      }
+    });
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    tippy('[data-tippy-content]', {
+      placement: 'top', // Default placement
+      fallbackPlacements: ['top', 'right', 'bottom', 'left'], // Fallbacks if top doesn't fit
+      boundary: 'window', // Consider the window as the boundary for fitting
+      animation: 'scale', // Optional: Define animation style
+      theme: 'light', // Optional: Define theme
+    });
+  });
+</script>
+
+
+{% endblock %}

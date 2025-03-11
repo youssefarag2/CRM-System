@@ -1,0 +1,461 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+
+ 
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+
+
+<div class="container-fluid py-4">
+<!-- 
+  <div id="carouselExampleIndicators" class="carousel slide">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+      <div class="carousel-item active c-item">
+        <img src="/static/img/drake.jpg" class="d-block w-100 c-img" alt="...">
+      </div>
+      <div class="carousel-item c-item">
+        <img src="/static/img/og-image-nedialo.jpeg" class="d-block w-100 c-img" alt="...">
+      </div>
+      <div class="carousel-item c-item">
+        <img src="..." class="d-block w-100 c-img" alt="...">
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div> -->
+
+
+
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table align-items-center mb-0">
+        <thead>
+          <tr>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Login</th>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ready</th>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Meeting</th>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Break</th>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Hours</th>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Paid Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="align-right badge badge-dot me-4">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="login-time-av" class="text-dark text-xs">00:00:00</span>
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-dot me-4">
+                <span id="ready-time-av" class="text-dark text-xs">00:00:00</span>
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-dot me-4">
+                <span id="meeting-time-av" class="text-dark text-xs">00:00:00</span>
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-dot me-4">
+                <span id="break-time-av" class="text-dark text-xs">00:00:00</span>
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-dot me-4">
+                <span id="total-hours-non-av" class="text-dark text-xs">00:00:00</span>
+              </span>
+            </td>
+  
+            <td class="align-middle">
+              <span class="badge badge-dot me-4">
+                <span id="total-hours-paid-av" class="text-dark text-xs">00:00:00</span>
+              </span>
+            </td>
+          </tr>
+
+  
+        </tbody>
+      </table>
+    </div>
+    </div>
+  <br>
+  <div class="row">
+    <div class="col-sm-4">
+      <div class="card">
+        <div class="card-body p-3 position-relative">
+          <div class="row">
+            <div class="col-7 text-start">
+              <p class="text-sm mb-1 text-capitalize font-weight-bold">Total Hours </p>
+
+              <h5 class="font-weight-bolder mb-0">
+                {{total_time}}
+              </h5>
+
+              <span class="text-sm text-end text-info font-weight-bolder mt-auto mb-0">
+                <span class="font-weight-normal text-secondary">-</span></span>
+
+
+            </div>
+            <div class="col-5">
+              <div class="dropdown text-end">
+                <a href="javascript:;" class="cursor-pointer text-secondary" id="dropdownUsers2" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span class="text-xs text-secondary">{{month_name}}, {{current_year}}</span>
+                </a>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4 mt-sm-0 mt-4">
+      <div class="card">
+        <div class="card-body p-3 position-relative">
+          <div class="row">
+            <div class="col-7 text-start">
+              <p class="text-sm mb-1 text-capitalize font-weight-bold">Leads</p>
+              <h5 class="font-weight-bolder mb-0">
+                
+                {{leads_count}}
+              </h5>
+              <span class="text-sm text-end text-info font-weight-bolder mt-auto mb-0">{{leads_flow}}% <span class="font-weight-normal text-secondary">Quality Score</span></span>
+            </div>
+            <div class="col-5">
+              <div class="dropdown text-end">
+                <a href="javascript:;" class="cursor-pointer text-secondary" id="dropdownUsers2" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span class="text-xs text-secondary">{{month_name}}, {{current_year}}</span>
+                </a>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4 mt-sm-0 mt-4">
+      <div class="card">
+        <div class="card-body p-3 position-relative">
+          <div class="row">
+            <div class="col-7 text-start">
+              <p class="text-sm mb-1 text-capitalize font-weight-bold">Lead Points</p>
+              <h5 class="font-weight-bolder mb-0">
+                {{lead_points}}
+              </h5>
+              <span class="text-sm text-end text-info font-weight-bolder mt-auto mb-0">{{target_percentage}}% 
+                <span class="font-weight-normal text-secondary">of Monthly Target</span></span>
+            </div>
+            <div class="col-5">
+              <div class="dropdown text-end">
+                <a href="javascript:;" class="cursor-pointer text-secondary" id="dropdownUsers2" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span class="text-xs text-secondary">{{month_name}}, {{current_year}}</span>
+                </a>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col-lg-4 col-sm-6">
+      <div class="card h-100">
+        <div class="card-header pb-0 p-3">
+          <div class="d-flex justify-content-between">
+            <h6 class="mb-0">Leads</h6>
+
+          </div>
+        </div>
+        <div class="card-body pb-0 p-3 mt-4">
+          <div class="row">
+            <div class="col-7 text-start">
+              <div class="chart">
+                <canvas id="chart-pie" class="chart-canvas" height="200"></canvas>
+              </div>
+            </div>
+            <div class="col-5 my-auto">
+              <span class="badge badge-md badge-dot me-4 d-block text-start">
+                <i class="bg-info"></i>
+                <span class="text-dark text-xs">Qualified</span>
+              </span>
+              <span class="badge badge-md badge-dot me-4 d-block text-start">
+                <i class="bg-primary"></i>
+                <span class="text-dark text-xs">Disqualified</span>
+              </span>
+              <span class="badge badge-md badge-dot me-4 d-block text-start">
+                <i class="bg-gradient-dark"></i>
+                <span class="text-dark text-xs">Callback</span>
+              </span>
+
+              <span class="badge badge-md badge-dot me-4 d-block text-start">
+                <i class="bg-secondary"></i>
+                <span class="text-dark text-xs">Duplicated</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer pt-0 pb-0 p-3 d-flex align-items-center">
+          <div class="w-60">
+            <p class="text-sm">
+              A descriptive pie chart showing the distribution of lead results across the year.
+            </p>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8 col-sm-6 mt-sm-0 mt-4">
+      <div class="card">
+        <div class="card-header pb-0 p-3">
+          <div class="d-flex justify-content-between">
+            <h6 class="mb-0">Leads</h6>
+
+          </div>
+          <div class="d-flex align-items-center">
+            <span class="badge badge-md badge-dot me-4">
+              <i class="bg-info"></i>
+              <span class="text-dark text-xs">Qualified Leads</span>
+            </span>
+            <span class="badge badge-md badge-dot me-4">
+              <i class="bg-primary"></i>
+              <span class="text-dark text-xs">Disqualified Leads</span>
+            </span>
+          </div>
+        </div>
+        <div class="card-body p-3">
+          <div class="chart">
+            <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+
+
+
+<script src="static/js/plugins/dragula/dragula.min.js"></script>
+<script src="static/js/plugins/jkanban/jkanban.js"></script>
+ 
+<script src="static/js/plugins/chartjs.min.js"></script>
+
+<script>
+  var ctx1 = document.getElementById("chart-line").getContext("2d");
+  var ctx2 = document.getElementById("chart-pie").getContext("2d");
+  var lineChartQ = {{qualified_count}};
+  var lineChartDQ = {{disqualified_count}};
+  var leadResults = {{lead_results_year}}
+  // Line chart
+  new Chart(ctx1, {
+    type: "line",
+    data: {
+      labels: ["Jan","Feb","Mar","Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [{
+          label: "Qualified Leads",
+          tension: 0,
+          pointRadius: 5,
+          pointBackgroundColor: "#1976d2",
+          pointBorderColor: "transparent",
+          borderColor: "#1976d2",
+          borderWidth: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          data: lineChartQ,
+          maxBarThickness: 6
+        },
+        {
+          label: "Disqualified Leads",
+          tension: 0,
+          borderWidth: 0,
+          pointRadius: 5,
+          pointBackgroundColor: "#e91e63",
+          pointBorderColor: "transparent",
+          borderColor: "#e91e63",
+          borderWidth: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          data: lineChartDQ,
+          maxBarThickness: 6
+        }
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            borderDash: [5, 5],
+            color: '#c1c4ce5c'
+          },
+          ticks: {
+            display: true,
+            padding: 10,
+            color: '#9ca2b7',
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: true,
+            borderDash: [5, 5],
+            color: '#c1c4ce5c'
+          },
+          ticks: {
+            display: true,
+            color: '#9ca2b7',
+            padding: 10,
+            font: {
+              size: 14,
+              weight: 300,
+              family: "Roboto",
+              style: 'normal',
+              lineHeight: 2
+            },
+          }
+        },
+      },
+    },
+  });
+
+
+
+ 
+
+
+  // Pie chart
+  new Chart(ctx2, {
+    type: "pie",
+    data: {
+      labels: ['Qualified', 'Disqualified', 'Callback', 'Duplicated'],
+      datasets: [{
+        label: "Projects",
+        weight: 9,
+        cutout: 0,
+        tension: 0.9,
+        pointRadius: 2,
+        borderWidth: 1,
+        backgroundColor: ['#17c1e8', '#e91e63', '#3A416F', '#a8b8d8'],
+        data: leadResults,
+        fill: false
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false,
+            color: '#c1c4ce5c'
+          },
+          ticks: {
+            display: false
+          }
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false,
+            color: '#c1c4ce5c'
+          },
+          ticks: {
+            display: false,
+          }
+        },
+      },
+    },
+  });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

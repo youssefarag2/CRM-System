@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container-fluid py-4">
+  <div class="d-sm-flex justify-content-between">
+    <div>
+      
+    </div>
+    <div class="d-flex">
+      
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Requests Table</h5>
+          <p class="text-sm mb-0">
+            View all Prepayment Requests.
+          </p>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-flush" id="datatable-search">
+            <thead class="thead-light">
+              <tr>
+                <th>ID</th>
+
+                <th>Submission Date</th>
+                <th>Timeframe</th>
+                <th>Agent</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Report</th>
+
+                
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for prepayment in prepayments %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+
+                    <p class="text-xs font-weight-normal ms-2 mb-0">#{{prepayment.id}}</p>
+                  </div>
+                </td>
+                <td class="font-weight-normal">
+                  <span class="my-2 text-xs">{{prepayment.submission_date}}</span>
+                </td>
+                <td class="text-xs font-weight-normal">
+                  {{prepayment.timeframe}}
+                </td>
+
+                <td class="font-weight-normal">
+                    <span class="my-2 text-xs">{{prepayment.agent_profile}}</span>
+                  </td>
+ 
+                <td class="text-xs font-weight-normal">
+                    {{prepayment.amount}}
+                </td>
+
+
+ 
+
+                
+
+                <td class="text-xs font-weight-normal">
+                  {% if prepayment.status == "approved" %}
+                  <span class="badge filter bg-gradient-success" data-color="success" >Approved</span>
+                  {% elif prepayment.status == "pending" %}
+                  <span class="badge filter bg-gradient-warning" data-color="warning" >Pending</span>
+                  {% elif prepayment.status == "rejected" %}
+                  <span class="badge filter bg-gradient-danger" data-color="warning" >Rejected</span>
+                  
+                  {% endif %}
+                  
+                </td>
+
+
+                <td class="text-xs font-weight-normal">
+                    <a href="prepayment-report/{{prepayment.id}}" class="text-sm font-weight-normal mb-0">
+                        <i class="material-icons opacity-10">open_in_new</i>
+                    </a>
+                    &nbsp;
+                    <a href="javascript:;" class="text-sm font-weight-normal mb-0" onclick="confirmDeletionWithSwal({{ prepayment.id }})">
+                      <i class="material-icons opacity-10">delete</i>
+                    </a>
+                </td>
+        
+              </tr>
+              {% endfor %}
+              
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <script>
+    function confirmDeletionWithSwal(leaveId) {
+      Swal.fire({
+          title: "Are you sure?",
+          text: "Once deleted, you will not be able to recover this request!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              fetch(`/delete-prepayment/${leaveId}/`, {
+                  method: 'DELETE',
+                  headers: {
+                      'X-CSRFToken': '{{ csrf_token }}',
+                  }
+              })
+              .then(response => {
+                  if (response.ok) {
+                      Swal.fire(
+                          'Deleted!',
+                          'Your request has been deleted.',
+                          'success'
+                      ).then(() => {
+                          location.reload(); // Optionally refresh the page
+                      });
+                  } else {
+                      Swal.fire(
+                          'Error!',
+                          'Failed to delete the request.',
+                          'error'
+                      );
+                  }
+              })
+              .catch(error => {
+                  Swal.fire(
+                      'Error!',
+                      'There was a problem deleting the request.',
+                      'error'
+                  );
+                  console.error("Error during fetch:", error);
+              });
+          } else {
+              Swal.fire(
+                  'Cancelled',
+                  'Your request is safe!',
+                  'info'
+              );
+          }
+      });
+    }
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+  const dataTableSearch = new simpleDatatables.DataTable("#datatable-search", {
+    searchable: true,
+    fixedHeight: false,
+    
+  });
+
+
+  document.querySelectorAll(".export").forEach(function(el) {
+    el.addEventListener("click", function(e) {
+      var type = el.dataset.type;
+
+      var data = {
+        type: type,
+        filename: "agents-" + type,
+      };
+
+      if (type === "csv") {
+        data.columnDelimiter = "|";
+      }
+
+      dataTableSearch.export(data);
+    });
+  });
+</script>
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    
+    document.querySelectorAll('.toggle-password').forEach(function(toggle) {
+      toggle.addEventListener('click', function(event) {
+        event.preventDefault();
+  
+        const passwordCell = this.closest('td.password-cell');
+        const passwordHidden = passwordCell.querySelector('.password-hidden');
+        const passwordVisible = passwordCell.querySelector('.password-visible');
+  
+        if (passwordVisible.style.display === 'none') {
+          passwordVisible.style.display = 'inline';
+          passwordHidden.style.display = 'none';
+          this.querySelector('i').textContent = 'visibility_off'; // Change icon to 'visibility_off'
+        } else {
+          passwordVisible.style.display = 'none';
+          passwordHidden.style.display = 'inline';
+          this.querySelector('i').textContent = 'visibility'; // Change icon back to 'visibility'
+        }
+      });
+    });
+  });
+  
+</script>
+
+<style>
+  .password-hidden {
+    display: inline;
+  }
+  
+  .password-visible {
+    display: none;
+  }
+  
+  .toggle-password i {
+    cursor: pointer;
+  }
+  
+</style>
+
+
+{% endblock %}

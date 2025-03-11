@@ -1,0 +1,158 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Function to format duration from seconds to HH:MM:SS
+      function formatDuration(seconds) {
+          if (isNaN(seconds) || seconds < 0) {
+              return '00:00:00'; // Return default value if input is invalid
+          }
+          const hours = Math.floor(seconds / 3600);
+          const minutes = Math.floor((seconds % 3600) / 60);
+          const secs = Math.floor(seconds % 60); // Ensure seconds are an integer
+          return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+  
+      const companyName = "{{ settings.company_name }}";
+      const breakPaid = {{ settings.break_paid|yesno:"true,false" }}; // Convert Django boolean to JS boolean
+  
+      // Function to update the clock display
+      function updateClock() {
+          console.log('updateClock function called'); // Check if function is called
+          const now = new Date();
+          const lastStatusChangeStr = document.getElementById('last-status-change').value; // Use .value for hidden input
+          const currentStatus = document.getElementById('current-status').innerText.toLowerCase();
+  
+          if (currentStatus === 'offline') {
+              document.getElementById('working-hours').innerText = 'Offline';
+              document.title = companyName + ' - Offline';
+              return;
+          }
+  
+          if (lastStatusChangeStr) {
+              const lastStatusChange = new Date(lastStatusChangeStr);
+              if (isNaN(lastStatusChange.getTime())) {
+                  console.error('Invalid last status change date:', lastStatusChangeStr);
+                  document.getElementById('working-hours').innerText = '00:00:00';
+                  document.title = `${document.getElementById('current-status').innerText} - 00:00:00`;
+                  return;
+              }
+  
+              const duration = Math.floor((now - lastStatusChange) / 1000); // Duration in seconds
+  
+              document.getElementById('working-hours').innerText = formatDuration(duration);
+              document.title = `${document.getElementById('current-status').innerText} - ${formatDuration(duration)}`;
+          } else {
+              console.error('Last status change date is missing');
+              document.getElementById('working-hours').innerText = '00:00:00';
+              document.title = `${document.getElementById('current-status').innerText} - 00:00:00`;
+          }
+      }
+  
+      // Function to update work status and UI
+      function updateWorkStatus(status) {
+          fetch('/update-status/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'X-CSRFToken': getCookie('csrftoken') // Include CSRF token for security
+              },
+              body: new URLSearchParams({ 'status': status })
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  const formattedStatus = data.new_status.charAt(0).toUpperCase() + data.new_status.slice(1);
+                  document.getElementById('current-status').innerText = formattedStatus;
+                  document.getElementById('last-status-change').value = new Date(data.last_status_change).toISOString(); // Update hidden input
+                  document.getElementById('ready-time').innerText = formatDuration(data.ready_time);
+                  document.getElementById('meeting-time').innerText = formatDuration(data.meeting_time);
+                  document.getElementById('break-time').innerText = formatDuration(data.break_time);
+  
+                  // Update the title with the new status
+                  document.title = `${formattedStatus} - 00:00:00`;
+  
+                  // Calculate and update total hours
+                  updateTotalHours(data);
+  
+                  // Trigger the clock update
+                  updateClock();
+              } else {
+                  console.error('Failed to update status:', data.error);
+              }
+          })
+          .catch(error => console.error('Error:', error));
+      }
+  
+      // Function to get CSRF token
+      function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
+          }
+          return cookieValue;
+      }
+  
+      // Function to fetch and update work status data
+      function fetchWorkStatusData() {
+          fetch('/work-status-data/')
+              .then(response => response.json())
+              .then(data => {
+                  const workStatusSelect = document.getElementById('work_status');
+                  workStatusSelect.value = data.current_status;
+  
+                  // Update total time spent in each status
+                  document.getElementById('ready-time').innerText = formatDuration(data.ready_time);
+                  document.getElementById('meeting-time').innerText = formatDuration(data.meeting_time);
+                  document.getElementById('break-time').innerText = formatDuration(data.break_time);
+  
+                  // Update the last status change
+                  document.getElementById('last-status-change').value = new Date(data.last_status_change).toISOString(); // Update hidden input
+  
+                  // Update the title with the current status
+                  const formattedStatus = data.current_status.charAt(0).toUpperCase() + data.current_status.slice(1);
+                  document.title = `${formattedStatus} - 00:00:00`;
+  
+                  // Calculate and update total hours
+                  updateTotalHours(data);
+  
+                  // Initialize the clock
+                  updateClock();
+              });
+      }
+  
+      // Function to update total hours display
+      function updateTotalHours(data) {
+          const readyTimeSeconds = data.ready_time;
+          const meetingTimeSeconds = data.meeting_time;
+          const breakTimeSeconds = data.break_time;
+  
+          // Total non-paid hours: sum of Ready, Meeting, and Break times
+          const totalHoursNon = readyTimeSeconds + meetingTimeSeconds + breakTimeSeconds;
+          document.getElementById('total-hours-non').innerText = formatDuration(totalHoursNon);
+  
+          // Total paid hours based on whether Break is paid or not
+          const totalHoursPaid = breakPaid ? totalHoursNon : readyTimeSeconds + meetingTimeSeconds;
+          document.getElementById('total-hours-paid').innerText = formatDuration(totalHoursPaid);
+      }
+  
+      // Fetch initial work status data
+      fetchWorkStatusData();
+      
+      // Fetch updated work status data every 30 seconds
+      setInterval(fetchWorkStatusData, 1000); // Adjust the interval as needed
+  
+      // Add event listener to the select field
+      document.getElementById('work_status').addEventListener('change', handleStatusChange);
+  
+      function handleStatusChange() {
+          const selectedStatus = document.getElementById('work_status').value;
+          updateWorkStatus(selectedStatus);
+      }
+    });
+  </script>

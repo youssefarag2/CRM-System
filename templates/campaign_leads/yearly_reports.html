@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block head %}
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+<style>
+    /* General styles for the calendar */
+    .flatpickr-calendar {
+        background: #1e1e1e; /* Dark background for calendar */
+        color: #e0e0e0; /* Light text color for calendar */
+    }
+
+    .flatpickr-day {
+        background: #333; /* Dark background for days */
+        color: #e0e0e0; /* Light text color for days */
+    }
+
+    /* Style for the selected day */
+    .flatpickr-day.selected,
+    .flatpickr-day.today {
+        background: #007bff; /* Blue background for selected day and today */
+        color: #fff; /* White text color for selected day */
+    }
+
+    /* Style for the day on hover */
+    .flatpickr-day:hover {
+        background: #444; /* Slightly lighter background on hover */
+    }
+
+    /* Style for the focus color */
+    .flatpickr-day.today {
+        border: 2px solid #007bff; /* Blue border for today */
+    }
+</style>
+
+<style>
+    /* Ensure the calendar appears above other elements */
+    .flatpickr-calendar {
+        z-index: 1050;
+    }
+    /* Hide the calendar container */
+    .calendar-container {
+        position: absolute;
+        display: none;
+        z-index: 1050;
+    }
+  </style>
+
+
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="container ">
+            <!-- Button to open the date picker -->
+            <button type="button" class="datepicker btn btn-outline-info dropdown-toggle">
+              {{year}}
+            </button>
+          <div class="calendar-container"></div>
+        </div>
+        <!-- Campaign Info Card -->
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body p-3 position-relative">
+                    <div class="row">
+                        <div class="col-7 text-start">
+                            <p class="text-sm mb-1 text-capitalize font-weight-bold">Campaign</p>
+                            <h6 class="mb-0">{{ campaign }}</h6>
+                            <span class="text-sm text-end text-info font-weight-bolder mt-auto mb-0">
+                                <span class="font-weight-normal text-secondary">2024 Target: {{ total_target_leads_yearly }} Leads</span>
+                            </span>
+                        </div>
+                        <div class="col-5">
+                            <div class="dropdown text-end">
+                                <a href="javascript:;" class="cursor-pointer text-secondary" id="dropdownUsers2" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="text-xs text-secondary">{{ year }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achieved Hours Card -->
+        <div class="col-sm-4 mt-sm-0 mt-4">
+            <div class="card">
+                <div class="card-body p-3 position-relative">
+                    <div class="row">
+                        <div class="col-7 text-start">
+                            <p class="text-sm mb-1 text-capitalize font-weight-bold">Achieved Leads</p>
+                            <h6 class="font-weight-bolder mb-0">{{ total_qualified }}</h6>
+                            <span class="text-sm text-end text-info font-weight-bolder mt-auto mb-0">
+                                {{ achievement_percentage }}%
+                                <span class="font-weight-normal text-secondary"> Achieved</span>
+                            </span>
+                        </div>
+                        <div class="col-5">
+                            <div class="dropdown text-end">
+                                <a href="javascript:;" class="cursor-pointer text-secondary" id="dropdownUsers2" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="text-xs text-secondary">{{ year }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Remaining Hours Card -->
+        <div class="col-sm-4 mt-sm-0 mt-4">
+            <div class="card">
+                <div class="card-body p-3 position-relative">
+                    <div class="row">
+                        <div class="col-7 text-start">
+                            <p class="text-sm mb-1 text-capitalize font-weight-bold">Remaining Leads</p>
+                            <h5 class="font-weight-bolder mb-0">{{ remaining_leads }}</h5>
+                            <span class="text-sm text-end text-danger font-weight-bolder mt-auto mb-0">
+                                {{ remaining_percentage }}%
+                                <span class="font-weight-normal text-secondary"> Remaining</span>
+                            </span>
+                        </div>
+                        <div class="col-5">
+                            <div class="dropdown text-end">
+                                <a href="javascript:;" class="cursor-pointer text-secondary" id="dropdownUsers2" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="text-xs text-secondary">{{ year }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leads Card -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header pb-0 p-3">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="mb-0">Lead Insights For {{year}}</h6>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge badge-md badge-dot me-4">
+                            <i class="bg-success"></i>
+                            <span class="text-dark text-xs">Qualified</span>
+                        </span>
+                        <span class="badge badge-md badge-dot me-4">
+                          <i class="bg-primary"></i>
+                          <span class="text-dark text-xs">Disqualified</span>
+                        </span>
+                        <span class="badge badge-md badge-dot me-4">
+                              <i class="bg-info"></i>
+                              <span class="text-dark text-xs">Callback </span>
+                        </span>
+    
+                      <span class="badge badge-md badge-dot me-4">
+                        <i class="bg-secondary"></i>
+                        <span class="text-dark text-xs">Duplicated </span>
+                      </span>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <div class="chart">
+                        <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    </div>
+    
+    
+    
+    
+    <script src="../static/js/plugins/dragula/dragula.min.js"></script>
+    <script src="../static/js/plugins/jkanban/jkanban.js"></script>
+     
+    <script src="../static/js/plugins/chartjs.min.js"></script>
+    
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/rangePlugin.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          var button = document.querySelector(".datepicker");
+          var calendarContainer = document.querySelector(".calendar-container");
+    
+          // Set camp-id dynamically or statically here
+          var campId = {{campaign.id}}; // Replace with actual camp-id value
+    
+          var fp = flatpickr(calendarContainer, {
+              dateFormat: "Y-m", // Internal format
+              altInput: true, // Use an alternative input
+              altFormat: "F Y", // Display format in the button
+              allowInput: true, // Allow manual input
+              onChange: function(selectedDates, dateStr, instance) {
+                  var selectedDate = selectedDates[0];
+                  if (selectedDate) {
+                      var formattedDate = instance.formatDate(selectedDate, "F Y");
+                      button.textContent = instance.formatDate(selectedDate, "Y");
+    
+                      // Construct the URL and redirect
+                      var year = instance.formatDate(selectedDate, "Y");
+                      var month = instance.formatDate(selectedDate, "m");
+                      var redirectUrl = `/campleads-yearly/${campId}-${year}`;
+                      window.location.href = redirectUrl; // Redirect to the constructed URL
+                  }
+              },
+              onOpen: function() {
+                  // Position the calendar container below the button
+                  var rect = button.getBoundingClientRect();
+                  calendarContainer.style.left = `${rect.left}px`;
+                  calendarContainer.style.top = `${rect.bottom}px`;
+                  calendarContainer.style.display = 'block';
+              },
+              onClose: function() {
+                  // Hide the calendar when it is closed
+                  calendarContainer.style.display = 'none';
+              }
+          });
+    
+          // Open flatpickr calendar when the button is clicked
+          button.addEventListener("click", function() {
+              fp.open();
+          });
+    
+          // Close flatpickr calendar when clicking outside
+          document.addEventListener("click", function(event) {
+              if (!fp.calendarContainer.contains(event.target) && !event.target.closest(".datepicker")) {
+                  fp.close();
+              }
+          });
+      });
+    </script>
+
+
+
+
+    <script>
+    
+        const dataTableSearch = new simpleDatatables.DataTable("#datatable-search", {
+          searchable: true,
+          fixedHeight: false,
+          
+        });
+      
+    </script>
+    
+
+  
+    <script>
+        var ctx1 = document.getElementById("chart-line").getContext("2d");
+    
+        // Ensure the data is rendered correctly as JavaScript arrays
+        var qualifiedLeads = JSON.parse('{{ monthly_qualified|escapejs }}');
+        var disqualifiedLeads = JSON.parse('{{ monthly_disqualified|escapejs }}');
+        var callbackLeads = JSON.parse('{{ monthly_callback|escapejs }}');
+        var duplicatedLeads = JSON.parse('{{ monthly_duplicated|escapejs }}');
+    
+        // Line chart
+        new Chart(ctx1, {
+            type: "line",
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [
+                    {
+                        label: "Qualified",
+                        tension: 0,
+                        pointRadius: 5,
+                        pointBackgroundColor: "#28a745", // Success color
+                        pointBorderColor: "transparent",
+                        borderColor: "#28a745",
+                        borderWidth: 4,
+                        backgroundColor: "rgba(40, 167, 69, 0.2)",
+                        fill: true,
+                        data: qualifiedLeads,
+                        maxBarThickness: 6
+                    },
+                    {
+                        label: "Disqualified",
+                        tension: 0,
+                        pointRadius: 5,
+                        pointBackgroundColor: "#e91e63", // Primary color
+                        pointBorderColor: "transparent",
+                        borderColor: "#e91e63",
+                        borderWidth: 4,
+                        backgroundColor: "rgba(233, 30, 99, 0.2)",
+                        fill: true,
+                        data: disqualifiedLeads,
+                        maxBarThickness: 6
+                    },
+                    {
+                        label: "Callback",
+                        tension: 0,
+                        pointRadius: 5,
+                        pointBackgroundColor: "#17a2b8", // Info color
+                        pointBorderColor: "transparent",
+                        borderColor: "#17a2b8",
+                        borderWidth: 4,
+                        backgroundColor: "rgba(23, 162, 184, 0.2)",
+                        fill: true,
+                        data: callbackLeads,
+                        maxBarThickness: 6
+                    },
+                    {
+                        label: "Duplicated",
+                        tension: 0,
+                        pointRadius: 5,
+                        pointBackgroundColor: "#6c757d", // Secondary color
+                        pointBorderColor: "transparent",
+                        borderColor: "#6c757d",
+                        borderWidth: 4,
+                        backgroundColor: "rgba(108, 117, 125, 0.2)",
+                        fill: true,
+                        data: duplicatedLeads,
+                        maxBarThickness: 6
+                    }
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false, // Disable legend
+                    },
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
+                scales: {
+                    y: {
+                        grid: {
+                            drawBorder: false,
+                            display: true,
+                            drawOnChartArea: true,
+                            drawTicks: false,
+                            borderDash: [5, 5],
+                            color: '#c1c4ce5c'
+                        },
+                        ticks: {
+                            display: true,
+                            padding: 10,
+                            color: '#9ca2b7',
+                            font: {
+                                size: 14,
+                                weight: 300,
+                                family: "Roboto",
+                                style: 'normal',
+                                lineHeight: 2
+                            },
+                        }
+                    },
+                    x: {
+                        grid: {
+                            drawBorder: false,
+                            display: true,
+                            drawOnChartArea: true,
+                            drawTicks: true,
+                            borderDash: [5, 5],
+                            color: '#c1c4ce5c'
+                        },
+                        ticks: {
+                            display: true,
+                            color: '#9ca2b7',
+                            padding: 10,
+                            font: {
+                                size: 14,
+                                weight: 300,
+                                family: "Roboto",
+                                style: 'normal',
+                                lineHeight: 2
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    </script>
+    
+    
+    
+    
+    
+      
+    
+
+
+    {% endblock %}
+    

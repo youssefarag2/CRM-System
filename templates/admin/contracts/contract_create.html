@@ -1,0 +1,248 @@
+{% extends 'base-admin.html' %}
+
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+
+
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="multisteps-form mb-9">
+          <!--progress bar-->
+          <div class="row">
+            <div class="col-12 col-lg-8 mx-auto my-5">
+            </div>
+          </div>
+          <!--form panels-->
+          <div class="row">
+            <div class="col-12 col-lg-8 m-auto">
+              <div class="card">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                  <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
+                    <div class="multisteps-form__progress">
+                      <button class="multisteps-form__progress-btn js-active" type="button" title="Contract Info">
+                        <span>Contract Info</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form class="multisteps-form__form" role="form" method="POST" enctype="multipart/form-data" id="user-create">
+                    {% csrf_token %}
+
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white js-active" data-animation="FadeIn">
+                      <h5 class="font-weight-bolder mb-0">Package Info</h5>
+                      <p class="mb-0 text-sm">Mandatory information</p>
+                      <div class="multisteps-form__content" id="pageone">
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Package *</label>
+                            <div class="input-group input-group-dynamic">
+                                <select class="form-control" name="package" id="package" required>
+                                    <option value="">Select...</option> <!-- Blank option for initial selection -->
+                                    {% for package in packages %}    
+                                        <option value="{{package.id}}">{{package.name}}</option>
+                                    {% endfor %}
+                                        
+
+                                </select>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Contract Sample *</label>
+                            <div class="input-group input-group-dynamic">
+                                <select class="form-control" name="sample" id="sample" required>
+                                    <option value="">Select...</option> <!-- Blank option for initial selection -->
+                                    {% for sample in samples %}    
+                                        <option value="{{sample.id}}">{{sample.name}}</option>
+                                    {% endfor %}
+                                        
+
+                                </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label>Field *</label>
+
+                              <div class="input-group input-group-static">
+
+                              <select class="form-control" name="field" id="field" required>
+                                  <option value="">Select...</option> <!-- Blank option for initial selection -->
+                                  {% for key,value in fields %}    
+                                      <option value="{{key}}">{{value}}</option>
+                                  {% endfor %}
+                                      
+
+                              </select>
+                                
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+
+                        
+
+
+                        <div class="button-row d-flex mt-4">
+                            <button class="btn bg-gradient-info ms-auto mb-0" type="submit" title="Next">Next</button>
+                        </div>
+                      </div>
+                    </div>
+ 
+ 
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+<script>
+
+
+ 
+
+document.addEventListener('DOMContentLoaded', function() {
+    const nextButton1 = document.getElementById('nextButton1');
+    const nextButton2 = document.getElementById('nextButton2');
+    const nextButton3 = document.getElementById('nextButton3');
+    nextButton1.disabled = false;
+    nextButton2.disabled = false;
+    nextButton3.disabled = false;
+ 
+
+});
+
+ 
+
+</script>
+
+
+
+<!-- Kanban scripts -->
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        
+
+
+        if (document.getElementById('sample')) {
+            var sample = document.getElementById('sample');
+            const example = new Choices(sample, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+         
+
+        if (document.getElementById('package')) {
+            var package = document.getElementById('package');
+            const example = new Choices(package, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('field')) {
+          var field = document.getElementById('field');
+          const example = new Choices(field, {
+              searchEnabled: true,
+              searchChoices: true,
+              searchFields: ['label', 'value'], // Fields to search within
+              searchPlaceholderValue: 'Search...', // Placeholder for the search input
+              shouldSort: false, // Disable sorting of choices
+              itemSelectText: '', // Text shown in the dropdown when an item is selected
+              fuseOptions: {
+                  includeScore: true, // Include score in search results
+                  threshold: 0.3, // Match threshold for search results
+                  keys: ['label', 'value'] // Fields to search within
+              }
+          });
+      }
+    });
+
+</script>
+
+ 
+ 
+
+
+
+ 
+
+
+{% endblock %}

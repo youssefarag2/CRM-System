@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">house</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Real Estate Lead Form</h5>
+                </div>
+                <div class="card-header">
+                    <h6>Lead Info</h6>
+                </div>
+                <div class="card-body pt-0">
+                    <form role="form" class="text-start" method="POST" id="lead-form">  
+                        {% csrf_token %}
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Agent ID *</label>
+                                    <input type="text" class="form-control" name="agent_id" id="agent_id" value= "{{profile.id}}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Agent Name *</label>
+                                    <input type="text" class="form-control" name="agent_name" id="agent_name" value= "{{profile.full_name}}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">Campaign Name *</label>
+                                    <select class="form-control" name="campaign" id="campaign"  required>
+                                        <option value="">Select a Campaign</option>
+                                        {% for camp in campaigns %}
+                                        <option value="{{camp.id}}">{{camp.name}}</option>
+                                        {% endfor %}
+                                
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">List Name *</label>
+                                    <select class="form-control" name="dialer_list" id="dialer_list" >
+                                        <option value="0" selected>None</option>
+                                        <!--
+                                        {% for list in contactlists %}
+                                            <option value="{{list.id}}">{{list.name}}</option>
+                                        {% endfor %}
+                                         -->
+                                
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Prospect Name *</label>
+                                    <input type="text" class="form-control" name="owner_name" id="owner_name" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Phone Number *</label>
+                                    <input type="tel" class="form-control" name="phone_number" id="phone_number" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Email </label>
+                                    <input type="email" class="form-control" name="email" id="email" >
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Property Type *</label>
+                                    <select class="form-control" name="property_type" id="property_type" required>
+                                        <option value="">Select Property Type</option>
+                                        <option value="house">House</option>
+                                      <option value="vacant_land">Vacant Land</option>
+                                      <option value="business">Business</option>
+                                      <option value="apartment">Apartment</option>
+                                      <option value="condo">Condo</option>
+                                      <option value="mobile_home">Mobile Home</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="input-group input-group-static is-valid">
+                                <label>Address *</label>
+                                <input type="text" class="form-control" name="address" id="property_address" required>
+                            </div>
+
+                        </div>
+                        <div class="row mt-4">
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Asking Price *</label>
+                                    <input type="text" class="form-control" name="asking_price" id="asking_price"  required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Market Value *</label>
+                                    <input type="text" class="form-control" name="market_value" id="market_value" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Reason *</label>
+                                    <input type="text" class="form-control" name="reason" id="reason" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Timeline *</label>
+                                    <select class="form-control" name="timeline" id="timeline" required>
+                                    <option value="">Select Timeline</option> <!-- Blank option for initial selection -->
+                                      <option value="two_weeks">2 Weeks</option>
+                                      <option value="one_month">1 Month</option>
+                                      <option value="two_months">2 Months</option>
+                                      <option value="three_months">3 Months</option>
+                                      <option value="four_months">4 Months</option>
+                                      <option value="five_months">5 Months</option>
+                                      <option value="six_months">6 Months</option>
+                                      <option value="more_than_six_months">More Than 6 Months</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Property URL *</label>
+                                    <input type="text" class="form-control" name="zillow_url" id="zillow_url" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Callback Time *</label>
+                                    <input type="text" class="form-control" name="callback_time" id="call_back_time" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>General Info *</label>
+                                    <textarea class="form-control" rows="5" name="general_info" id="general_info" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>Extra Info</label>
+                                    <textarea class="form-control" rows="3" name="extra_info" id="extra_info"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="longitude" id="longitude" value=0>
+                        <input type="hidden" name="latitude" id="latitude" value=0>
+                        <input type="hidden" name="state" id="state" value=0>
+                        <input type="hidden" name="county" id="county" value=0>
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-info">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="card-body px-0 py-0">
+                        <div id="map" class="leaflet"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Map initialization
+        L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.7.1/dist/images/';
+        var map = L.map('map').setView([0, 0], 1);
+        var marker;
+        var lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://nedialo.app">Nedialo</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Toggle dark mode tiles
+        var darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://nedialo.app">Nedialo</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+
+        function toggleDarkMode(darkMode) {
+            if (darkMode) {
+                map.addLayer(darkTiles).removeLayer(lightTiles);
+            } else {
+                map.addLayer(lightTiles).removeLayer(darkTiles);
+            }
+        }
+
+        var mode = "{{ profile.maps_theme }}";
+        var darkMode = (mode === "dark");
+        toggleDarkMode(darkMode);
+
+        // Update map on address input
+        $('#property_address').on('change', function () {
+            var address = $(this).val();
+            if (address.trim() !== '') {
+                updateMap(address);
+            }
+        });
+
+        function updateMap(address) {
+            var HERE_API_KEY = '{{ api_token }}';
+            var geocodeUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(address)}&apiKey=${HERE_API_KEY}`;
+            $.get(geocodeUrl, function (data) {
+                if (data.items && data.items.length > 0) {
+                    var item = data.items[0];
+                    var position = item.position;
+                    var lat = position.lat;
+                    var lon = position.lng;
+
+                    // Extract additional information
+                    var state = item.address.state || "";
+                    var county = item.address.county || "";
+
+                    // Update hidden inputs
+                    $('#latitude').val(lat);
+                    $('#longitude').val(lon);
+                    $('#state').val(state);
+                    $('#county').val(county);
+
+                    // Update map view
+                    map.setView([lat, lon], 15);
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+                    marker = L.marker([lat, lon]).addTo(map);
+                } else {
+                    // Handle no results found
+                }
+            }).fail(function () {
+                // Handle error
+            });
+        }
+    });
+</script>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById('campaign')) {
+            var campaign = document.getElementById('campaign');
+            const example = new Choices(campaign, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+        
+
+        if (document.getElementById('dialer_list')) {
+            var dialer_list = document.getElementById('dialer_list');
+            const example = new Choices(dialer_list, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('property_type')) {
+            var property_type = document.getElementById('property_type');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('timeline')) {
+            var timeline = document.getElementById('timeline');
+            const example = new Choices(timeline, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+    });
+
+</script>
+
+
+
+
+
+{% endblock %}

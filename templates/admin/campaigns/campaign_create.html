@@ -1,0 +1,334 @@
+{% extends 'base-admin.html' %}
+
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+
+
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="multisteps-form mb-9">
+          <!--progress bar-->
+          <div class="row">
+            <div class="col-12 col-lg-8 mx-auto my-5">
+            </div>
+          </div>
+          <!--form panels-->
+          <div class="row">
+            <div class="col-12 col-lg-8 m-auto">
+              <div class="card">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                  <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
+                    <div class="multisteps-form__progress">
+                      <button class="multisteps-form__progress-btn js-active" type="button" title="Campaign Settings">
+                        <span>Campaign Settings</span>
+                      </button>
+                      <button class="multisteps-form__progress-btn" type="button" title="General">General</button>
+                      
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form class="multisteps-form__form" role="form" method="POST" enctype="multipart/form-data" id="user-create">
+                    {% csrf_token %}
+
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white js-active" data-animation="FadeIn">
+                      <h5 class="font-weight-bolder mb-0">Campaign Settings</h5>
+                      <p class="mb-0 text-sm">Mandatory information</p>
+                      <div class="multisteps-form__content" id="pageone">
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Campaign Name *</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="text" name="campaign_name" required/>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Client *</label>
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" name="client" id="client" placeholder="Choose a Client" required>
+                                  <option value="">Select Client</option> <!-- Blank option for initial selection -->
+                                  {% for client in clients %}
+                                    <option value="{{client.user}}">{{client.full_name}}</option>
+                                  {% endfor%}
+                          
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Agents Count</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="number"  min=0  value=0 name="agents_count" required/>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Hourly Rate</label>
+
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="number" min=0  value=0 name="hourly_rate" required/>
+                            </div>
+                          </div>
+                        </div>
+
+
+
+                        <div class="row mt-3">
+                          <div class="col-12 col-sm-6">
+                            <label class="form-label">Weekly Target  Hours</label>
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="number"  min=0 value=0 name="weekly_hours" required/>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Weekly Target Leads </label>
+
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="number" min=0 value=0 name="weekly_leads" required/>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <div class="row mt-3">
+
+                          <div class="col-12 col-sm-6 ">
+                            <label class="form-label">Lead Points</label>
+
+                            <div class="input-group input-group-dynamic">
+                              <input class="multisteps-form__input form-control" type="number" min=0 value=0 name="lead_points" required/>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <div class="button-row d-flex mt-4">
+                          <button id="nextButton1" class="btn bg-gradient-dark ms-auto mb-0 js-btn-next" type="button" title="Next">Next</button>
+                        </div>
+                      </div>
+                    </div>
+                    <!--single form panel-->
+                    <div class="multisteps-form__panel border-radius-xl bg-white" data-animation="FadeIn">
+                      <h5 class="font-weight-bold mb-0">General Info</h5>
+                      <p class="mb-0 text-sm">More details about the campaign</p>
+                      <div class="multisteps-form__content">
+
+                        <div class="row mt-3">
+
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Campaign Type *</label>
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" name="campaign_type" id="type" placeholder="Campaign Type" required>
+                                  <option value="">Select Campaign Type</option> <!-- Blank option for initial selection -->
+                                  {% for key,value in campaign_types %}
+                                    <option value="{{key}}">{{value}}</option>
+                                  {% endfor%}
+                          
+                              </select>
+                            </div>
+                          </div>
+
+                          <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                            <label class="form-label">Campaign Dialer *</label>
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" name="campaign_dialer" id="dialer" placeholder="Campaign Dialer" required>
+                                  <option value="">Select Campaign Dialer</option> <!-- Blank option for initial selection -->
+                                  <option value="none">None Calling Campaign</option> 
+
+                                  {% for dialer in dialers %}
+                                    <option value="{{dialer.id}}">{{dialer.name}}</option>
+                                  {% endfor%}
+                          
+                              </select>
+                            </div>
+                          </div>
+
+                        </div>
+                        <div class="row mt-3">
+
+                          <label class="form-label">Data Sources</label>
+                          <div class="input-group input-group-dynamic">
+                            <div class="input-group input-group-dynamic">
+                              <select class="form-control" id="sources" name="campaign_sources" multiple required>
+                                {% for source in sources %}
+                                  <option value={{source.id}}>{{source.name}}</option>
+                                {% endfor %}
+                              </select>                                  
+                            </div>                    
+                          </div>
+                            
+                        </div>
+
+                        
+
+
+                        <div class="button-row d-flex mt-4">
+                          <button class="btn bg-gradient-light mb-0 js-btn-prev" type="button" title="Prev">Prev</button>
+                          <button class="btn bg-gradient-info ms-auto mb-0" type="submit" title="Save">Save</button>
+                        </div>
+                      </div>
+                    </div>
+                    <!--single form panel-->
+
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Kanban scripts -->
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById('client')) {
+            var client = document.getElementById('client');
+            const example = new Choices(client, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('dialer')) {
+          var dialer = document.getElementById('dialer');
+          const example = new Choices(dialer, {
+              searchEnabled: true,
+              searchChoices: true,
+              searchFields: ['label', 'value'], // Fields to search within
+              searchPlaceholderValue: 'Search...', // Placeholder for the search input
+              shouldSort: false, // Disable sorting of choices
+              itemSelectText: '', // Text shown in the dropdown when an item is selected
+              fuseOptions: {
+                  includeScore: true, // Include score in search results
+                  threshold: 0.3, // Match threshold for search results
+                  keys: ['label', 'value'] // Fields to search within
+              }
+          });
+      }
+
+        if (document.getElementById('sources')) {
+          var sources = document.getElementById('sources');
+          const example = new Choices(sources, {
+            searchEnabled: true,
+            searchChoices: true,
+            delimiter: ',',
+            editItems: true,
+            maxItemCount: 10,
+            removeItemButton: true,
+            addItems: true,
+            searchEnabled: true,
+            searchChoices: true,
+            renderChoiceLimit: 10, // This will limit the number of choices displayed at once
+          });
+        }
+
+        if (document.getElementById('type')) {
+          var type = document.getElementById('type');
+          const example = new Choices(type, {
+            searchEnabled: true,
+            searchChoices: true,
+            delimiter: ',',
+            editItems: true,
+            maxItemCount: 10,
+            removeItemButton: true,
+            addItems: true,
+            searchEnabled: true,
+            searchChoices: true,
+            renderChoiceLimit: 10, // This will limit the number of choices displayed at once
+          });
+        }
+
+
+    });
+
+</script>
+
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('fileInput');
+        const fileListDiv = document.getElementById('fileList');
+    
+        fileInput.addEventListener('change', function() {
+            const files = this.files;
+            if (files.length > 0) {
+                const file = files[0];
+                fileListDiv.innerHTML = `<p>Selected File: ${file.name}</p>`;
+            } else {
+                fileListDiv.innerHTML = ''; // Clear the file list if no file is selected
+            }
+        });
+    });
+    
+</script>
+
+
+
+{% endblock %}

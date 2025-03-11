@@ -1,0 +1,138 @@
+{% extends 'base-admin.html' %}
+
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">house</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Contract Sample Form</h5>
+                </div>
+                <div class="card-header">
+                    <h6>Sample Info</h6>
+                </div>
+                <div class="card-body pt-0">
+                    <form role="form" class="text-start" method="POST" id="lead-form">  
+                        {% csrf_token %}
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Sample Name *</label>
+                                    <input type="text" class="form-control" name="name" id="name" value="{{sample.name}}" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Field *</label>
+  
+                                    <select class="form-control" name="field" id="field" required>
+                                        <option value="">Select...</option> <!-- Blank option for initial selection -->
+                                        {% for key,value in fields %}    
+                                            <option value="{{key}}" {% if sample.field == key %} selected {% endif %}>{{value}}</option>
+                                        {% endfor %}
+                                            
+    
+                                    </select>
+                                      
+                                </div>
+                            </div>
+                        </div>
+
+                        <br><br>
+
+ 
+                        <textarea id="editor" name="editor">{{sample.description}}</textarea>
+ 
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-info">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                     
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+ 
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        
+
+
+        if (document.getElementById('field')) {
+            var field = document.getElementById('field');
+            const example = new Choices(field, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+    });
+
+</script>
+
+
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script>
+    // Initialize CKEditor on the textarea
+    CKEDITOR.replace('editor', {
+        height: 800, // Optional: Customize editor height
+        toolbar: [
+            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+            { name: 'styles', items: ['Styles', 'Format', 'FontSize'] }, // Add FontSize to styles toolbar
+            
+            
+            ]
+    });
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% load custom_filters %}
+
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+
+
+</style>
+
+
+
+
+<style>
+    .border-radius-md {
+        border: none !important;  /* Remove any border */
+    }
+
+    /* Or set it to a specific color if needed */
+    .border-radius-md {
+        border: 1px solid transparent !important;  /* Set border to transparent */
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container-fluid py-4">
+
+        {% if  lookerstudio %}
+        {{lookerstudio|safe}}
+        {% else %}
+        <center><h3>Looker Studio is not available, Please Contact Server Administrator</h3></center>
+        {% endif %}
+    
+    
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

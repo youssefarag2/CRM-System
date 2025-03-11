@@ -1,0 +1,624 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+<form role="form" class="text-start" method="POST" id="lead-form" >  
+{% csrf_token %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">house</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Roofing Lead Handling Form</h5>
+                </div>
+                <div class="card-header">
+                    <h6>Lead Info</h6>
+                </div>
+                <div class="card-body pt-0">
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Agent ID *</label>
+                                    <input type="text" class="form-control" name="agent_id" id="agent_id"  value= " {{agent_profile.id}} " readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Agent Name *</label>
+                                    <input type="text" class="form-control" name="agent_name" id="agent_name" value= "{{lead.agent_profile}}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">Campaign Name *</label>
+                                    <select class="form-control" name="campaign" id="campaign"  readonly>
+                                        {% for camp in campaigns %}
+                                            {% if lead.campaign == camp %}
+                                                <option value="{{camp.id}}" selected>{{camp.name}}</option>
+                                            {% else %}
+                                                <option value="{{camp.id}}" >{{camp.name}}</option>
+
+                                            {% endif %}
+
+
+                                        {% endfor %}
+                                
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label for="exampleFormControlSelect1">List Name *</label>
+                                    <select class="form-control" name="dialer_list" id="dialer_list" >
+                                        <option value="0" selected>None</option>
+                                        <!--
+                                        {% for list in contactlists %}
+                                            <option value="{{list.id}}">{{list.name}}</option>
+                                        {% endfor %}
+                                         -->
+                                
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Prospect Name *</label>
+                                    <input type="text" class="form-control" name="owner_name" id="owner_name" value="{{lead.seller_name}}" >
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Phone Number *</label>
+                                    <input type="tel" class="form-control" name="phone_number" id="phone_number" value="{{lead.seller_phone}}" >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Email *</label>
+                                    <input type="email" class="form-control" name="email" id="email" value="{{lead.seller_email}}" >
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Property Type *</label>
+                                    <select class="form-control" name="property_type" id="property_type" required>
+
+                                        <option value="">Select Property Type</option>
+                                        {% for type in property_types %}
+                                            {% if type.0 == lead.property_type %}
+                                                <option value="{{type.0}}" selected>{{type.1}}</option>
+                                            {% else %}
+                                                <option value="{{type.0}}">{{type.1}}</option>
+                                            {% endif %}
+                                        {%endfor%}
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="input-group input-group-static is-valid">
+                                <label>Address *</label>
+                                <input type="text" class="form-control" name="address" id="property_address" value="{{lead.property_address}}" disabled>
+                            </div>
+
+                        </div>
+                        
+                        <div class="row mt-4">
+                            
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Age of the roof (Years) *</label>
+                                    <input type="number" class="form-control" value="{{lead.roof_age}}" name="roof_age" id="roof_age" min="1" required>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Appointment Time *</label>
+                                    <input type="text" class="form-control" value="{{lead.appointment_time}}" name="appointment_time" id="appointment_time" required>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>Known Issues *</label>
+                                    <textarea class="form-control" rows="5" name="known_issues" id="known_issues" required>{{lead.known_issues}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>Extra Info</label>
+                                    <textarea class="form-control" rows="2" name="extra_info" id="extra_info">{{lead.extra_notes}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="longitude" id="longitude" value={{lead.longitude}}>
+                        <input type="hidden" name="latitude" id="latitude" value={{lead.latitude}}>
+
+                    <hr>
+                    
+                </div>
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">house</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Lead Flow Form</h5>
+                </div>
+                <div class="card-header">
+                    <h6 id="total-percentage-header">Total Percentage: 0.00%</h6>
+                </div>
+                <div class="card-body pt-0">
+                        {% if  not lead_flow_slots %}
+                        <center>
+                        <h4> LEAD FLOW SETTINGS NOT AVAILABLE THEREFORE YOU CAN'T HANDLE THIS LEAD </h4>
+                        <h7> PLEASE CONTACT SERVER ADMINISTRATOR </h7></center>
+                        {% endif %}
+ 
+                        <!-- Using the active slots from the context -->
+                            {% if lead_flow %}
+                                    {% for name, data in lead_flow.items %}
+                                    <div class="row mt-4">
+                                        <div class="slot-container col-12 col-sm-10">
+                                            <label class="form-label">{{ name }} *</label>
+                                            <div class="input-group input-group-dynamic">
+                                                <select class="form-control" name="slot{{ forloop.counter }}_name" id="slot{{ forloop.counter }}" required>
+                                                    {% if data.is_positive%}<option value="1" selected >Yes</option>
+                                                    <option value="0"  >No</option>{% endif %}
+                                                    {% if not data.is_positive%}<option value="1" >
+                                                        <option value="0" selected >No</option>{% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="slot-container col-12 col-sm-2">
+                                            <label class="form-label">Percentage</label>
+                                            <div class="input-group input-group-dynamic">
+                                                <input type="number" class="form-control" min="0" max="100" step="0.01" name="slot{{ forloop.counter }}_percentage" value="{{ data.percentage }}" readonly>
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {% for slot in lead_flow_slots %}
+                                <div class="row mt-4">
+                                    <div class="slot-container col-12 col-sm-10">
+                                        <label class="form-label">{{slot.name}} *</label>
+                                        <div class="input-group input-group-dynamic">
+                                            <select class="form-control" name="slot{{ forloop.counter }}_name" id="slot{{ forloop.counter }}" required>
+                                                <option value=''>Select</option>
+                                                <option value="1">Yes</option>
+                                                <option value="0">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="slot-container col-12 col-sm-2">
+                                        <label class="form-label">Percentage</label>
+                                        <div class="input-group input-group-dynamic">
+                                            <input type="number" class="form-control" min="0" max="100" step="0.01" name="slot{{ forloop.counter }}_percentage" value="{{ slot.percentage }}" readonly>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% endif%}
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>Quality Notes</label>
+                                    <textarea class="form-control" rows="2" name="quality_notes" id="quality_notes">{{lead.quality_notes}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <hr>
+                        <div class="row mt-4">
+                            <div class="input-group input-group-static">
+                                <label>Lead Status</label>
+                                <select class="form-control" name="lead_status" id="lead_status"  required>
+                                    <option value="">Select a value</option>
+                                    {% for status in lead_status %}
+                                        <option value="{{ status.0 }}" {% if status.0 == lead.status %} selected {% endif %}>{{ status.1 }}</option>
+                                    {% endfor %}
+                                        
+                            
+                                </select>                                
+                            </div>
+                        </div>
+                        <input type="hidden" id="hidden-total-percentage" name="hidden_total_percentage" value="0.00">
+
+                        {% if  lead_flow_slots %}
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-info">Submit</button>
+                            </div>
+                        </div>
+                    
+                        {% endif %}
+                    <hr>
+                    
+                </div>
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to calculate total percentage
+        function calculateTotalPercentage() {
+            let totalPercentage = 0.0;
+
+            // Select all the select elements
+            document.querySelectorAll('select[name$="_name"]').forEach(function(select) {
+                const percentageInput = document.querySelector(`input[name="${select.name.replace('_name', '_percentage')}"]`);
+
+                if (select.value === '1' && percentageInput) {
+                    // Add percentage if select value is '1'
+                    const percentageValue = parseFloat(percentageInput.value) || 0;
+                    totalPercentage += percentageValue;
+                }
+            });
+
+            // Update the total percentage display
+            const totalPercentageHeader = document.getElementById('total-percentage-header');
+            const hiddenTotalPercentage = document.getElementById('hidden-total-percentage');
+
+            totalPercentageHeader.textContent = `Total Percentage: ${totalPercentage.toFixed(2)}%`;
+
+            // Update the hidden input field
+            hiddenTotalPercentage.value = totalPercentage.toFixed(2);
+        }
+
+        // Calculate the total percentage on page load
+        calculateTotalPercentage();
+
+        // Add event listeners to select elements
+        document.querySelectorAll('select[name$="_name"]').forEach(function(select) {
+            select.addEventListener('change', calculateTotalPercentage);
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to calculate total percentage
+        function calculateTotalPercentage() {
+            let totalPercentage = 0.0;
+
+            // Select all the select elements with name starting with 'slot'
+            document.querySelectorAll('select[name^="slot"]').forEach(function(select) {
+                // Extract the base slot number
+                const slotNumber = select.name.replace('slot', '');
+
+                // Find the corresponding percentage input
+                const percentageInput = document.querySelector(`input[name="slot${slotNumber}_percentage"]`);
+
+                if (select.value === '1' && percentageInput) {
+                    // Add percentage if select value is '1'
+                    const percentageValue = parseFloat(percentageInput.value) || 0;
+                    totalPercentage += percentageValue;
+                }
+            });
+
+            // Update the total percentage display
+            document.getElementById('total-percentage-value').textContent = totalPercentage.toFixed(2);
+        }
+
+        // Calculate the total percentage on page load
+        calculateTotalPercentage();
+
+        // Add event listeners to select elements
+        document.querySelectorAll('select[name^="slot"]').forEach(function(select) {
+            select.addEventListener('change', calculateTotalPercentage);
+        });
+    });
+</script>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        
+
+
+
+
+
+
+
+
+
+
+        if (document.getElementById('campaign')) {
+            var campaign = document.getElementById('campaign');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        
+
+        if (document.getElementById('dialer_list')) {
+            var dialer_list = document.getElementById('dialer_list');
+            const example = new Choices(dialer_list, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('property_type')) {
+            var property_type = document.getElementById('property_type');
+            const example = new Choices(property_type, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('insurance')) {
+            var insurance = document.getElementById('insurance');
+            const example = new Choices(insurance, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('contractor')) {
+            var contractor = document.getElementById('contractor');
+            const example = new Choices(contractor, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('deductible')) {
+            var deductible = document.getElementById('deductible');
+            const example = new Choices(deductible, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('lead_status')) {
+            var lead_status = document.getElementById('lead_status');
+            const example = new Choices(lead_status, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                
+            });
+        }
+
+
+        if (document.getElementById('slot1')) {
+            var campaign = document.getElementById('slot1');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                
+            });
+        }
+
+
+        if (document.getElementById('slot2')) {
+            var campaign = document.getElementById('slot2');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot3')) {
+            var campaign = document.getElementById('slot3');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+
+
+
+        if (document.getElementById('slot4')) {
+            var campaign = document.getElementById('slot4');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot5')) {
+            var campaign = document.getElementById('slot5');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot6')) {
+            var campaign = document.getElementById('slot6');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot7')) {
+            var campaign = document.getElementById('slot7');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot8')) {
+            var campaign = document.getElementById('slot8');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot9')) {
+            var campaign = document.getElementById('slot9');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+        if (document.getElementById('slot10')) {
+            var campaign = document.getElementById('slot10');
+            const example = new Choices(campaign, {
+                searchEnabled: false,
+                searchChoices: false,
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                
+            });
+        }
+
+
+    });
+
+</script>
+
+
+
+
+
+{% endblock %}

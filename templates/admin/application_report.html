@@ -1,0 +1,533 @@
+<!-- application_form.html -->
+
+{% extends 'base-admin.html' %}
+{% load static %}
+{% block head %}
+<style>
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+    .input-group-static .form-control.zip-code {
+        width: 120px; /* Adjust width as needed */
+    }
+
+    /* Additional form input styles */
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px; /* Adjust width as needed */
+    }
+
+
+
+</style>
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+<div class="row">
+    <div class="col-lg-12 position-relative z-index-2">
+        <div class="card mb-4">
+            <div class="d-flex">
+                <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                    <i class="material-icons me-sm-1">support_agent</i>
+                </div>
+                <h6 class="mt-3 mb-2 ms-3">Job Application Form</h6>
+            </div>
+            <div class="card-header">
+                <h5>Application Details</h5>
+            </div>
+            <div class="card-body pt-0">
+                <form role="form" class="text-start" method="POST" id="application-form" enctype="multipart/form-data" >
+                    {% csrf_token %}
+                    <div class="row mt-4">
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label>Name *</label>
+                                <input type="text" class="form-control" name="full_name" id="full_name" value="{{ app.full_name }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label>Position *</label>
+                                <select class="form-control" name="position" id="position" required>
+                                    <option value="1"  selected>{{app.get_position_display}}</option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label>Phone Number *</label>
+                                <input type="text" class="form-control" name="phone_number" id="phone_number" value="{{app.phone}}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label>Email *</label>
+                                <input type="email" class="form-control" name="email" id="email" value="{{app.email}}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label>Education *</label>
+                                <select class="form-control" name="education" id="education" required>
+                                    <option value="1"  selected>{{app.get_education_display}}</option>
+                                   
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label>When Can You Start? *</label>
+                                <input type="date" class="form-control" name="start_date" id="start_date" value="{{app.start_date|date:'Y-m-d'}}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label>Shift Type *</label>
+                                <select class="form-control" name="shift" id="shift" required>
+                                    <option value="1"  selected>{{app.get_shift_display}}</option>
+ 
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label>How did you hear about us? *</label>
+                                <select class="form-control" name="discover" id="discovery" required>
+                                    <option value="{{ app.get_app_discovery_display }}" selected>{{ app.get_app_discovery_display }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4" id="recruiterField" style="display: none;">
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label id="dynamic-field-label"></label>
+                                <input type="text" class="form-control" name="recruiter_details" id="recruiter_details" value="{{ app.discovery_details }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                             <div class="input-group input-group-static">
+                                <label>Previous Experience *</label>
+                                <textarea class="form-control" rows="3" name="previous_experience" id="previous_experience" readonly>{{app.experience}}</textarea>
+                            </div>
+                     </div>
+
+
+                    <div class="row mt-4">
+
+                        <div class="col-sm-6">
+                            <label for="audioPlayback">Introduction and Experience Recording *</label><br>
+                            <div class="input-group input-group-static">
+
+                                <input type="text" class="form-control" name="recording_external" id="recording_external" value="{% if app.recording_link %} {{app.recording_link}} {% endif %}" placeholder="External Recording Link (EMPTY)">
+                            </div>
+                            <br><br>
+                            {% if app.audio_file %}
+                            <audio id="audioPlayback" controls>
+                                <source src="{{ app.audio_file.url }}" type="audio/webm">
+                                Your browser does not support the audio element.
+                                
+                            </audio>
+                            <button class="btn btn-sm btn-info mt-2" onclick="copyAudioLink(event)">Copy Link</button>
+                            <a href="{{ app.audio_file.url }}" download="Recording.webm" class="btn btn-sm btn-info mt-2">Download </a>
+
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mt-4">
+                        <div class="col-sm-6">
+                            <div class="input-group input-group-static">
+                                <label>Language Proficiency *</label>
+                                <select class="form-control" name="language_exp" id="language_exp" required>
+                                    <option value="">Select..</option> <!-- Blank option for initial selection -->
+
+                                    {% for key,value in lang_exp %}
+                                    <option value="{{key}}" {% if key == app.language_exp %} selected {% endif %}>{{value}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="col-sm-6">
+
+                        <label class="form-label">Skills *</label>
+                        <div class="input-group input-group-dynamic">
+                            <select class="form-control" id="choices-skills" name="skills" multiple required>
+                            {% for key,value in skills %}
+                                <option value={{key}} {% if key in app.skills %} selected {%endif %}>{{value}}</option>
+                            {% endfor %}
+                            </select>                                  
+                        </div>
+                    </div>
+                       
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="input-group input-group-static">
+                           <label>Comments *</label>
+                           <textarea class="form-control" rows="3" name="comments" id="comments">{{app.comments}}</textarea>
+                       </div>
+                    </div>
+
+
+                    {% if app.handled_by %}
+                    <div class="row mt-4">
+                        <div class="input-group input-group-static">
+                            <label>Handled By</label>
+                            <select class="form-control" name="handled_by" id="handled_by">
+                                <option value="None">{{app.handled_by.profile}}</option>
+                                    
+                        
+                            </select>                                
+                        </div>
+                    </div>
+                    {% endif %}
+
+
+                    <br>
+
+                    <div class="row mt-4">
+                        <div class="input-group input-group-static">
+                            <label>Application Status</label>
+                            <select class="form-control" name="status" id="status"  required>
+                                <option value="">Select a value</option>
+                                {% for status in app_status %}
+                                    <option value="{{ status.0 }}" {% if status.0 == app.status %} selected {% endif %}>{{ status.1 }}</option>
+                                {% endfor %}
+                                    
+                        
+                            </select>                                
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-info">Handle Application</button>
+                            <a href="{{ whatsapp_link }}" class="btn btn-success" target="_blank">
+                                <i class="fa-brands fa-whatsapp me-2" style="font-size: 1.15rem;"></i>WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/plyr@3.7.7/dist/plyr.js"></script>
+
+<!-- Plyr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.7/dist/plyr.css" />
+<script>
+    function copyAudioLink(event) {
+        // Prevent any default behavior like navigation or form submission
+        event.preventDefault();
+        
+        // Get the 'src' attribute of the audio source element
+        var audioSrc = document.querySelector("#audioPlayback source").src;
+        
+        // Create a temporary text area to copy the link
+        var tempInput = document.createElement("textarea");
+        tempInput.value = audioSrc;
+        document.body.appendChild(tempInput);
+        
+        // Select the text and copy it
+        tempInput.select();
+        tempInput.setSelectionRange(0, 99999); // For mobile devices
+        document.execCommand("copy");
+        
+        // Remove the temporary text area
+        document.body.removeChild(tempInput);
+        
+        // Optionally alert the user that the link has been copied
+        alert("Audio link copied: " + audioSrc);
+    }
+</script>
+<style>
+    /* General Plyr Player Styling */
+    .plyr {
+        background-color: #1e263f; /* Dark background color for player */
+        color: #e0e0e0; /* Light text color */
+        border-radius: 10px; /* Rounded corners for the player */
+        border: none; /* No border */
+    }
+    
+    /* Control Bar */
+    .plyr .plyr__controls {
+        background-color: #1e263f; /* Dark background for controls */
+        border-radius: 10px; /* Rounded corners for the controls */
+        border: none; /* Transparent border for controls */
+    }
+    
+    /* Buttons and Sliders */
+    .plyr .plyr__control {
+        background-color: #2c354b; /* Darker control buttons */
+        color: #e0e0e0; /* Light icon color */
+        border-radius: 50%; /* Circular buttons */
+        border: none; /* Remove button borders */
+    }
+
+    /* Progress Bar Styling */
+    .plyr .plyr__progress {
+        border-radius: 5px; /* Slightly rounded progress bar */
+    }
+
+    /* Volume Control */
+    .plyr .plyr__volume--mute {
+        background-color: #2c354b; /* Dark background for mute button */
+        color: #e0e0e0;
+        border-radius: 50%; /* Circular mute button */
+        border: none; /* Transparent border for mute button */
+    }
+
+    /* Hover Effects */
+    .plyr .plyr__control:hover {
+        background-color: #404c6d; /* Slightly lighter on hover */
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const player = new Plyr('#audioPlayback', {
+            // Options
+        });
+    });
+</script>
+
+
+<script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+</script>
+  
+  
+  
+ 
+  
+  
+  
+  
+  <script>
+  
+      document.addEventListener('DOMContentLoaded', function () {
+          if (document.getElementById('position')) {
+              var residence = document.getElementById('position');
+              const example = new Choices(residence, {
+                  searchEnabled: false,
+                  searchChoices: false,
+                  searchFields: ['label', 'value'], // Fields to search within
+                  searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                  shouldSort: false, // Disable sorting of choices
+                  itemSelectText: '', // Text shown in the dropdown when an item is selected
+                  fuseOptions: {
+                      includeScore: false, // Include score in search results
+                      threshold: 0.3, // Match threshold for search results
+                      keys: ['label', 'value'] // Fields to search within
+                  }
+              });
+          }
+
+          if (document.getElementById('status')) {
+            var residence = document.getElementById('status');
+            const example = new Choices(residence, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: false, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+  
+  
+          if (document.getElementById('education')) {
+              var residence = document.getElementById('education');
+              const example = new Choices(residence, {
+                  searchEnabled: false,
+                  searchChoices: false,
+                  searchFields: ['label', 'value'], // Fields to search within
+                  searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                  shouldSort: false, // Disable sorting of choices
+                  itemSelectText: '', // Text shown in the dropdown when an item is selected
+                  fuseOptions: {
+                      includeScore: false, // Include score in search results
+                      threshold: 0.3, // Match threshold for search results
+                      keys: ['label', 'value'] // Fields to search within
+                  }
+              });
+          }
+  
+  
+  
+          if (document.getElementById('shift')) {
+              var residence = document.getElementById('shift');
+              const example = new Choices(residence, {
+                  searchEnabled: false,
+                  searchChoices: false,
+                  searchFields: ['label', 'value'], // Fields to search within
+                  searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                  shouldSort: false, // Disable sorting of choices
+                  itemSelectText: '', // Text shown in the dropdown when an item is selected
+                  fuseOptions: {
+                      includeScore: false, // Include score in search results
+                      threshold: 0.3, // Match threshold for search results
+                      keys: ['label', 'value'] // Fields to search within
+                  }
+              });
+          }
+
+
+          if (document.getElementById('discovery')) {
+            var residence = document.getElementById('discovery');
+            const example = new Choices(residence, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: false, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+
+        if (document.getElementById('language_exp')) {
+            var residence = document.getElementById('language_exp');
+            const example = new Choices(residence, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: false, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('choices-skills')) {
+            var skills = document.getElementById('choices-skills');
+            const example = new Choices(skills, {
+              delimiter: ',',
+              editItems: true,
+              maxItemCount: 10,
+              removeItemButton: true,
+              addItems: true,
+
+              searchEnabled: true,
+              searchChoices: true,
+              renderChoiceLimit: 30, // This will limit the number of choices displayed at once
+            });
+          }
+  
+      });
+
+
+
+      if (document.getElementById('handled_by')) {
+        var residence = document.getElementById('handled_by');
+        const example = new Choices(residence, {
+            searchEnabled: false,
+            searchChoices: false,
+            searchFields: ['label', 'value'], // Fields to search within
+            searchPlaceholderValue: 'Search...', // Placeholder for the search input
+            shouldSort: false, // Disable sorting of choices
+            itemSelectText: '', // Text shown in the dropdown when an item is selected
+            fuseOptions: {
+                includeScore: false, // Include score in search results
+                threshold: 0.3, // Match threshold for search results
+                keys: ['label', 'value'] // Fields to search within
+            }
+        });
+    }
+
+
+
+
+  
+  </script>
+
+
+<script>
+    function toggleRecruiterField() {
+        var discoveryField = document.getElementById('discovery');
+        var recruiterField = document.getElementById('recruiterField');
+        const dynamicFieldLabel = document.getElementById('dynamic-field-label');
+        
+        // Show the recruiter field if "Recruiter" or "Other" is selected
+        if (discoveryField.value === 'Recruiter') {
+            recruiterField.style.display = 'block';
+            dynamicFieldLabel.innerText = 'Recruiter Name *';
+        }else if (discoveryField.value === 'Other'){
+            recruiterField.style.display = 'block';
+            dynamicFieldLabel.innerText = 'Where did you hear about us? Please specify. *';
+        } 
+        else {
+            recruiterField.style.display = 'none';
+        }
+    }
+
+    // Call the function on page load to set the initial state
+    window.onload = function() {
+        toggleRecruiterField();
+    };
+</script>
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,364 @@
+{% extends 'base-admin.html' %}
+{% load custom_filters %}
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container-fluid py-4">
+  <div class="d-sm-flex justify-content-between">
+    <div>
+      <a href="contactlist-create" class="btn btn-icon bg-gradient-info">
+        New Contacts List
+      </a>
+    </div>
+    <div class="d-flex">
+      <div class="dropdown d-inline">
+
+        <ul class="dropdown-menu dropdown-menu-lg-start px-2 py-3" aria-labelledby="navbarDropdownMenuLink2" data-popper-placement="left-start">
+          <li><a class="dropdown-item border-radius-md text-success" href="javascript:;">Status: Active</a></li>
+          <li><a class="dropdown-item border-radius-md text-danger" href="javascript:;">Status: Inactive</a></li>
+          <li><a class="dropdown-item border-radius-md text-warning" href="javascript:;">Status: Hold</a></li>
+          <li>
+            <hr class="horizontal dark my-2">
+          </li>
+          <li><a class="dropdown-item border-radius-md text-grey" href="javascript:;">Remove Filter</a></li>
+        </ul>
+      </div>
+      <button class="btn btn-icon btn-outline-success ms-2 export" data-type="csv" type="button">
+        <i class="material-icons text-xs position-relative">archive</i>
+        Export CSV
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Contact Lists Table</h5>
+          <p class="text-sm mb-0">
+            View all Contact Lists.
+          </p>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-flush" id="datatable-search">
+            <thead class="thead-light">
+              <tr>
+                <th>ID</th>
+                <th>List</th>
+                <th>Campaign</th>
+                <th>Client</th>
+                <th>Dialer</th>
+                <th>Contacts</th>
+                <th>State</th>
+                <th>Source</th>
+                <th>Skiptracing</th>
+                <th>Status</th>
+                <th>Action</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for list in contactlists %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+
+                    <p class="text-xs font-weight-normal ms-2 mb-0">#{{list.id}}</p>
+                  </div>
+                </td>
+                <td class="font-weight-normal">
+                  <span class="my-2 text-xs" data-tippy-content="{{list.name}}" data-tippy-placement="top">{{list.name|truncate}}</span>
+                </td>
+                <td class="text-xs font-weight-normal">
+                  {{list.campaign}}
+                </td>
+                <td class="text-xs font-weight-normal">
+                  {{list.campaign.client}}
+                </td>
+                <td class="text-xs font-weight-normal">
+                    {{list.dialer}}
+                </td>
+                <td class="text-xs font-weight-normal">
+                  {{list.contacts}}
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                  <span type="button" class="badge filter bg-gradient-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ list.states|text_to_list|length }} States 
+                  </span>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% for state in list.states|text_to_list %}
+                      <li><a class="dropdown-item border-radius-md" href="javascript:;">{{ state }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </td>
+                
+
+
+
+                <td class="text-xs font-weight-normal">
+                  <span class="badge filter bg-gradient-secondary" data-color="secondary" >{{list.source}}</span>
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                  <span class="badge filter bg-gradient-secondary" data-color="secondary" >{{list.skip_tracing}}</span>
+                </td>
+                
+
+                
+
+
+
+                <td class="text-xs font-weight-normal">
+                  {% if list.status == "dialed" %}
+                  <span class="badge filter bg-gradient-success" data-color="success" >Dialed</span>
+                  {% elif list.status == "paused" %}
+                  <span class="badge filter bg-gradient-danger" data-color="danger" >Paused</span>
+                  {% elif list.status == "being_dialed" %}
+                  <span class="badge filter bg-gradient-info" data-color="info" >Being Dialed</span>
+                  {% elif list.status == "pulled" %}
+                  <span class="badge filter bg-gradient-warning" data-color="warning" >Pulled</span>
+                  {% endif %}
+                  
+
+
+                </td>
+
+                <td class="text-sm">
+                  <div class="d-flex align-items-center">
+                    <a href="account-reports/{{account.id}}"
+                    data-tippy-content="Preview Campaign" data-tippy-placement="top">
+                      <i class="material-icons text-secondary position-relative text-lg">visibility</i>
+                    </a>
+                    <a href="javascript:;" 
+                    data-tippy-content="Delete Campaign" data-tippy-placement="top"
+                      onclick= "showDeleteConfirmation('{{account}}','{{list.name}}','{{list.id}}')">
+                      <i class="material-icons text-secondary position-relative text-lg">delete</i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+  <script>
+    const dataTableSearch = new simpleDatatables.DataTable("#datatable-search", {
+      searchable: true,
+      fixedHeight: false,
+    });
+  
+    // Custom function to decode all URL-encoded characters
+    function decodeAllData(data) {
+      return decodeURIComponent(data); // Decodes any URL-encoded characters
+    }
+  
+    document.querySelectorAll(".export").forEach(function(el) {
+      el.addEventListener("click", function(e) {
+        var type = el.dataset.type;
+  
+        var data = {
+          type: type,
+          filename: "contactlists-list",
+        };
+  
+        if (type === "csv") {
+          data.columnDelimiter = ",";
+        }
+  
+        // Use the export functionality but prevent immediate download
+        const csvContent = dataTableSearch.export({
+          type: type,
+          download: false, // Prevent immediate download
+        });
+  
+        // Decode all URL-encoded characters
+        const decodedContent = decodeAllData(csvContent);
+  
+        // Now trigger the download with the decoded content
+        const blob = new Blob([decodedContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = data.filename + ".csv";
+        link.click();
+      });
+    });
+  </script>
+  
+
+
+
+
+
+<script>
+  // Function to retrieve CSRF token from cookies
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+  }
+
+  function showDeleteConfirmation(account, listName, list_id) {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn bg-gradient-danger',
+        cancelButton: 'btn bg-gradient-dark'
+      },
+      buttonsStyling: false
+    });
+
+    swalWithBootstrapButtons.fire({
+      title: `Delete ${listName}`,
+      html: `
+        <div class="card border-0 shadow-sm input-group input-group-static">
+          <form id="passwordForm" class="text-center p-3">
+            <input type="password" id="passwordInput" class="form-control" placeholder="Enter your password">
+          </form>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#28a745',
+      cancelButtonText: 'Cancel',
+      cancelButtonColor: '#dc3545',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const password = document.getElementById('passwordInput').value;
+        if (!password) {
+          Swal.showValidationMessage('Please enter your password');
+          return false;
+        }
+
+        // Fetch CSRF token from cookie
+        const csrftoken = getCookie('csrftoken');
+
+        // Send POST request to delete user
+        return fetch(`/contactlist-delete/${list_id}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken // Include CSRF token in headers
+          },
+          body: JSON.stringify({ password })// Include CSRF token in body
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Network response was not ok - ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .catch(error => {
+          Swal.showValidationMessage(`Request failed: ${error}`);
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+      didOpen: () => {
+        Swal.getConfirmButton().disabled = true;
+        document.getElementById('passwordInput').addEventListener('input', () => {
+          const password = document.getElementById('passwordInput').value;
+          Swal.getConfirmButton().disabled = password.length === 0;
+        });
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Contacts List Deleted!',
+          icon: 'success'
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cancelled',
+          icon: 'error'
+        });
+      }
+    });
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    tippy('[data-tippy-content]', {
+      placement: 'top', // Default placement
+      fallbackPlacements: ['top', 'right', 'bottom', 'left'], // Fallbacks if top doesn't fit
+      boundary: 'window', // Consider the window as the boundary for fitting
+      animation: 'scale', // Optional: Define animation style
+      theme: 'light', // Optional: Define theme
+    });
+  });
+</script>
+
+
+{% endblock %}

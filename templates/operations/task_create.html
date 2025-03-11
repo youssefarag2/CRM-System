@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head %}
+
+
+<style>
+    
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+
+
+    .input-group-static {
+
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 position-relative z-index-2">
+            <div class="card mb-4">
+                <div class="d-flex">
+                    <div class="icon icon-shape icon-lg bg-gradient-info shadow text-center border-radius-xl mt-n3 ms-4">
+                        <i class="material-icons opacity-10" aria-hidden="true">task</i>
+                    </div>
+                    <h5 class="mt-3 mb-2 ms-3">Task Creation</h5>
+                </div>
+                <div class="card-header">
+                    <h6>Task Info</h6>
+                </div>
+                <div class="card-body pt-0">
+                    <form role="form" class="text-start" method="POST" id="lead-form">  
+                        {% csrf_token %}
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>ID *</label>
+                                    <input type="text" class="form-control" name="agent_id" id="agent_id" value= "{{profile.id}}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" name="agent_name" id="agent_name" value= "{{profile.full_name}}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Title *</label>
+                                    <input type="text" class="form-control" name="title" id="title" maxlength="36" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Due Date *</label>
+                                    <input class="form-control"  type="date" name="due_date" required >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="input-group input-group-static">
+                                <label>Description </label>
+                                <textarea class="form-control" rows="2" name="description" id="description" required></textarea>
+                            </div>
+                            
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Priority *</label>
+                                    <select class="form-control" name="priority" id="priority" required>
+                                        <option value="">Select Priority</option> <!-- Blank option for initial selection -->
+                                          <option value="1">Very Low</option>
+                                          <option value="2">Low</option>
+                                          <option value="3">Moderate</option>
+                                          <option value="4">High</option>
+                                          <option value="5">Very High</option>
+
+                                        </select>                                
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-group input-group-static">
+                                    <label>Responsible Department *</label>
+                                    <select class="form-control" name="department" id="department" required>
+                                    <option value="">Select Department</option> <!-- Blank option for initial selection -->
+                                      {% for key,value in task_departments.items %}
+                                        <option value="{{key}}">{{value}}</option> <!-- Blank option for initial selection -->
+                                      {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-static">
+                                    <label>Task Notes/Updates *</label>
+                                    <textarea class="form-control" rows="5" name="task_notes" id="task_notes"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                       
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-info">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+         
+
+        if (document.getElementById('department')) {
+            var department = document.getElementById('department');
+            const example = new Choices(department, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('priority')) {
+            var priority = document.getElementById('priority');
+            const example = new Choices(priority, {
+                searchEnabled: false,
+                searchChoices: false,
+                searchFields: ['label', 'value'], // Fields to search within
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+    });
+
+</script>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ work_status.current_status|capfirst }} - 00:00:00</title>
+    <!-- JavaScript code here -->
+</head>
+<body>
+    <h1>Work Status</h1>
+    <p>Current Status: <span id="current-status">{{ work_status.current_status|capfirst }}</span></p>
+    <p>Total Working Hours: <span id="working-hours">00:00:00</span></p>
+    <p>Last Status Change: <span id="last-status-change">{{ work_status.last_status_change|date:"c" }}</span></p>
+
+    <h2>Total Time Spent in Each Status</h2>
+    <ul>
+        <li>Ready: <span id="ready-time">{{ ready_time }}</span></li>
+        <li>Meeting: <span id="meeting-time">{{ meeting_time }}</span></li>
+        <li>Break: <span id="break-time">{{ break_time }}</span></li>
+        <li>Offline: <span id="offline-time">{{ offline_time }}</span></li>
+    </ul>
+
+    <form method="post" id="status-form">
+        {% csrf_token %}
+        <button type="button" onclick="changeStatus('ready')">Set Ready</button>
+        <button type="button" onclick="changeStatus('meeting')">Set Meeting</button>
+        <button type="button" onclick="changeStatus('break')">Set Break</button>
+        <button type="button" onclick="changeStatus('offline')">Set Offline</button>
+    </form>
+
+    <script>
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const lastStatusChangeStr = document.getElementById('last-status-change').innerText;
+            const currentStatus = document.getElementById('current-status').innerText.toLowerCase();
+
+            if (currentStatus === 'offline') {
+                // If the status is offline, display "Offline" without a counter
+                document.getElementById('working-hours').innerText = 'Offline';
+                document.title = 'Offline';
+                return;
+            }
+
+            if (lastStatusChangeStr) {
+                const lastStatusChange = new Date(lastStatusChangeStr);
+
+                if (isNaN(lastStatusChange.getTime())) {
+                    // Handle invalid date
+                    console.error('Invalid last status change date:', lastStatusChangeStr);
+                    document.getElementById('working-hours').innerText = '00:00:00';
+                    document.title = `${document.getElementById('current-status').innerText} - 00:00:00`;
+                    return;
+                }
+
+                const duration = Math.floor((now - lastStatusChange) / 1000); // Duration in seconds
+
+                document.getElementById('working-hours').innerText = formatDuration(duration);
+                document.title = `${document.getElementById('current-status').innerText} - ${formatDuration(duration)}`;
+            } else {
+                // Handle missing date
+                console.error('Last status change date is missing');
+                document.getElementById('working-hours').innerText = '00:00:00';
+                document.title = `${document.getElementById('current-status').innerText} - 00:00:00`;
+            }
+        }
+
+        function changeStatus(status) {
+            fetch("{% url 'update_status' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+                },
+                body: new URLSearchParams({
+                    'status': status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('current-status').innerText = data.new_status.charAt(0).toUpperCase() + data.new_status.slice(1);
+                    document.getElementById('last-status-change').innerText = data.last_status_change;
+                    document.getElementById('ready-time').innerText = data.ready_time;
+                    document.getElementById('meeting-time').innerText = data.meeting_time;
+                    document.getElementById('break-time').innerText = data.break_time;
+                    
+                    // Update the page title
+                    document.title = `${data.new_status.charAt(0).toUpperCase() + data.new_status.slice(1)} - 00:00:00`;
+
+                    // Trigger the clock update
+                    updateClock();
+                } else {
+                    alert(data.error);
+                }
+            });
+        }
+
+        // Set initial page title
+        document.title = `${document.getElementById('current-status').innerText} - 00:00:00`;
+
+        // Initialize the clock
+        updateClock();
+        setInterval(updateClock, 1000); // Update every second
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+<!--
+
+<script>
+  // Function to format duration from seconds to HH:MM:SS
+  function formatDuration(seconds) {
+      if (isNaN(seconds) || seconds < 0) {
+          return '00:00:00'; // Return default value if input is invalid
+      }
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = Math.floor(seconds % 60); // Ensure seconds are an integer
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  // Function to update the clock display
+  function updateClock() {
+      const now = new Date();
+      const lastStatusChangeStr = document.getElementById('last-status-change').innerText;
+      const currentStatus = document.getElementById('current-status').innerText.toLowerCase();
+
+      if (currentStatus === 'offline') {
+          // If the status is offline, display "Offline" without a counter
+          document.getElementById('working-hours').innerText = 'Offline';
+          document.title = 'Offline';
+          return;
+      }
+
+      if (lastStatusChangeStr) {
+          const lastStatusChange = new Date(lastStatusChangeStr);
+
+          if (isNaN(lastStatusChange.getTime())) {
+              // Handle invalid date
+              console.error('Invalid last status change date:', lastStatusChangeStr);
+              document.getElementById('working-hours').innerText = '00:00:00';
+              document.title = `${document.getElementById('current-status').innerText} - 00:00:00`;
+              return;
+          }
+
+          const duration = Math.floor((now - lastStatusChange) / 1000); // Duration in seconds
+          document.getElementById('working-hours').innerText = formatDuration(duration);
+          document.title = `${document.getElementById('current-status').innerText} - ${formatDuration(duration)}`;
+      } else {
+          // Handle missing date
+          console.error('Last status change date is missing');
+          document.getElementById('working-hours').innerText = '00:00:00';
+          document.title = `${document.getElementById('current-status').innerText} - 00:00:00`;
+      }
+  }
+
+  // Function to update work status and UI
+  function updateWorkStatus(status) {
+      fetch('/update-status/', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': getCookie('csrftoken') // Include CSRF token for security
+          },
+          body: new URLSearchParams({ 'status': status })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              // Update the UI with the new status and times
+              const formattedStatus = data.new_status.charAt(0).toUpperCase() + data.new_status.slice(1);
+              document.getElementById('current-status').innerText = formattedStatus;
+              document.getElementById('last-status-change').innerText = new Date(data.last_status_change).toLocaleString();
+              document.getElementById('ready-time').innerText = formatDuration(data.ready_time);
+              document.getElementById('meeting-time').innerText = formatDuration(data.meeting_time);
+              document.getElementById('break-time').innerText = formatDuration(data.break_time);
+              document.getElementById('offline-time').innerText = formatDuration(data.offline_time);
+
+              // Update the title with the new status
+              document.title = `${formattedStatus} - 00:00:00`;
+
+              // Trigger the clock update
+              updateClock();
+          } else {
+              console.error('Failed to update status:', data.error);
+          }
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  // Function to get CSRF token
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+
+  // Function to fetch and update work status data
+  function fetchWorkStatusData() {
+      fetch('/work-status-data/')
+          .then(response => response.json())
+          .then(data => {
+              const workStatusSelect = document.getElementById('work_status');
+              workStatusSelect.value = data.current_status;
+
+              // Update total time spent in each status
+              document.getElementById('ready-time').innerText = formatDuration(data.ready_time);
+              document.getElementById('meeting-time').innerText = formatDuration(data.meeting_time);
+              document.getElementById('break-time').innerText = formatDuration(data.break_time);
+              document.getElementById('offline-time').innerText = formatDuration(data.offline_time);
+
+              // Update the last status change
+              document.getElementById('last-status-change').innerText = new Date(data.last_status_change).toLocaleString();
+
+              // Update the title with the current status
+              const formattedStatus = data.current_status.charAt(0).toUpperCase() + data.current_status.slice(1);
+              document.title = `${formattedStatus} - 00:00:00`;
+
+              // Initialize the clock
+              updateClock();
+          });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+      // Fetch initial work status data
+      fetchWorkStatusData();
+      
+      // Fetch updated work status data every 30 seconds
+      setInterval(fetchWorkStatusData, 1000); // Adjust the interval as needed
+
+      // Add event listener to the select field
+      document.getElementById('work_status').addEventListener('change', handleStatusChange);
+  });
+
+  function handleStatusChange() {
+      const selectedStatus = document.getElementById('work_status').value;
+      updateWorkStatus(selectedStatus);
+  }
+</script>
+
+
+
+
+
+-->

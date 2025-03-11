@@ -1,0 +1,406 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container-fluid py-4">
+  <div class="d-sm-flex justify-content-between">
+    <button type="button" class="datepicker btn btn-outline-info dropdown-toggle">
+        {{full_month_name}},  {{year}}
+    </button>
+    <div class="d-flex">
+
+
+        <div>
+             
+          </div>
+      <button class="btn btn-icon btn-outline-success ms-2 export" data-type="csv" type="button">
+        <i class="material-icons text-xs position-relative">archive</i>
+        Export CSV
+      </button>
+    </div>
+
+  </div>
+
+  <div class="d-flex">
+    <!-- Calendar Container (Positioned in the top-right corner) -->
+    <div class="calendar-container top-right-calendar" style="display: none;">
+      <div id="calendar"></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">{{affiliate.full_name}} {{month}}/{{year}}</h5>
+          <p class="text-sm mb-0">
+            View all Affiliated Clients.
+          </p>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-flush" id="datatable-search">
+            <thead class="thead-light">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Joining Date</th>
+                <th>Revenue</th>
+                <th>Commission %</th>
+                <th>Commission</th>
+                <th>Notes</th>
+                <th>Status</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in clients %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+
+                    <p class="text-xs font-weight-normal ms-2 mb-0">#{{account.id}}</p>
+                  </div>
+                </td>
+                <td class="font-weight-normal">
+                  <span class="my-2 text-xs">{{account.full_name}}</span>
+                </td>
+                <td class="text-xs font-weight-normal">
+                  {{account.user}}
+                </td>
+                <td class="text-xs font-weight-normal">
+                    {{account.email}}
+                  </td>
+                <td class="text-xs font-weight-normal">
+                    {{account.joining_date|date:"Y-m-d"}}
+                </td>
+                <td class="text-xs font-weight-normal">
+                   $ {{ account|get_affiliate_client_revenue:combined_date }}
+                </td>
+
+
+
+                
+               
+
+
+        
+                <td class="text-xs font-weight-normal">
+                    {{affiliate.commission_percentage}} %
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                    $ {{ account|get_affiliate_client_commission:combined_date }}
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                     {{ account|get_affiliate_notes:combined_date }}
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                  {% if account.client_status == "active" %}
+                  <span class="badge filter bg-gradient-success" data-color="success" >Active</span>
+                  {% elif account.client_status == "hold" %}
+                  <span class="badge filter bg-gradient-warning" data-color="warning" >Hold</span>
+                  {% elif account.client_status == "pending" %}
+                  <span class="badge filter bg-gradient-warning" data-color="warning" >Pending</span>
+                  {% elif account.client_status == "inactive" %}
+                  <span class="badge filter bg-gradient-danger" data-color="warning" >Inactive</span>
+                  {% endif %}
+                  
+
+
+                </td>
+
+                
+              </tr>
+              {% endfor %}
+              
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script src="../static/js/plugins/choices.min.js"></script>
+<script src="../static/js/plugins/multistep-form.js"></script>
+
+<script src="../static/js/plugins/datatables.js"></script>
+
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/rangePlugin.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      var button = document.querySelector(".datepicker");
+      var calendarContainer = document.querySelector(".calendar-container");
+
+      // Set camp-id dynamically or statically here
+      //var affiliate = '{{affiliate.user}}'; // Replace with actual camp-id value
+
+      var fp = flatpickr(calendarContainer, {
+          dateFormat: "Y-m", // Internal format
+          altInput: true, // Use an alternative input
+          altFormat: "F Y", // Display format in the button
+          allowInput: true, // Allow manual input
+          onChange: function(selectedDates, dateStr, instance) {
+              var selectedDate = selectedDates[0];
+              if (selectedDate) {
+                  var formattedDate = instance.formatDate(selectedDate, "F Y");
+                  button.textContent = formattedDate;
+
+                  // Construct the URL and redirect
+                  var year = instance.formatDate(selectedDate, "Y");
+                  var month = instance.formatDate(selectedDate, "m");
+                  var redirectUrl = `/affiliate-dashboard/${month}-${year}`;
+                  window.location.href = redirectUrl; // Redirect to the constructed URL
+              }
+          },
+          onOpen: function() {
+              // Position the calendar container below the button
+              var rect = button.getBoundingClientRect();
+              calendarContainer.style.left = `${rect.left}px`;
+              calendarContainer.style.top = `${rect.bottom}px`;
+              calendarContainer.style.display = 'block';
+          },
+          onClose: function() {
+              // Hide the calendar when it is closed
+              calendarContainer.style.display = 'none';
+          }
+      });
+
+      // Open flatpickr calendar when the button is clicked
+      button.addEventListener("click", function() {
+          fp.open();
+      });
+
+      // Close flatpickr calendar when clicking outside
+      document.addEventListener("click", function(event) {
+          if (!fp.calendarContainer.contains(event.target) && !event.target.closest(".datepicker")) {
+              fp.close();
+          }
+      });
+  });
+</script>
+
+
+<script>
+  // Function to retrieve CSRF token from cookies
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+  }
+
+  function showDeleteConfirmation(account, fullName, username) {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn bg-gradient-danger',
+        cancelButton: 'btn bg-gradient-dark'
+      },
+      buttonsStyling: false
+    });
+
+    swalWithBootstrapButtons.fire({
+      title: `Delete ${fullName}`,
+      html: `
+        <div class="card border-0 shadow-sm input-group input-group-static">
+          <form id="passwordForm" class="text-center p-3">
+            <input type="password" id="passwordInput" class="form-control" placeholder="Enter your password">
+          </form>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#28a745',
+      cancelButtonText: 'Cancel',
+      cancelButtonColor: '#dc3545',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const password = document.getElementById('passwordInput').value;
+        if (!password) {
+          Swal.showValidationMessage('Please enter your password');
+          return false;
+        }
+
+        // Fetch CSRF token from cookie
+        const csrftoken = getCookie('csrftoken');
+
+        // Send POST request to delete user
+        return fetch(`/affiliate-delete/${username}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken // Include CSRF token in headers
+          },
+          body: JSON.stringify({ password })// Include CSRF token in body
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Network response was not ok - ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .catch(error => {
+          Swal.showValidationMessage(`Request failed: ${error}`);
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+      didOpen: () => {
+        Swal.getConfirmButton().disabled = true;
+        document.getElementById('passwordInput').addEventListener('input', () => {
+          const password = document.getElementById('passwordInput').value;
+          Swal.getConfirmButton().disabled = password.length === 0;
+        });
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Affiliate Deleted!',
+          icon: 'success'
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cancelled',
+          icon: 'error'
+        });
+      }
+    });
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  const dataTableSearch = new simpleDatatables.DataTable("#datatable-search", {
+    searchable: true,
+    fixedHeight: false,
+  });
+
+  // Custom function to decode all URL-encoded characters
+  function decodeAllData(data) {
+    return decodeURIComponent(data); // Decodes any URL-encoded characters
+  }
+
+  document.querySelectorAll(".export").forEach(function(el) {
+    el.addEventListener("click", function(e) {
+        var type = el.dataset.type;
+
+        // Generate the CSV data from the table
+        var csvData = generateCSV();
+
+        // Create a temporary link to trigger the download
+        var link = document.createElement("a");
+        link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvData);
+        link.target = '_blank';
+        link.download = '{{affiliate.full_name}}-data.csv'; // You can change this filename
+
+        // Programmatically click the link to trigger the download
+        link.click();
+    });
+});
+
+// Function to generate CSV data from table
+function generateCSV() {
+    var rows = document.querySelectorAll('#datatable-search tbody tr');
+    var csv = [];
+
+    // Add table headers (if required)
+    var headers = [];
+    document.querySelectorAll('#datatable-search thead th').forEach(function(th) {
+        headers.push(th.textContent.trim());
+    });
+    csv.push(headers.join(','));
+
+    // Add table rows
+    rows.forEach(function(row) {
+        var cells = row.querySelectorAll('td');
+        var rowData = [];
+        cells.forEach(function(cell) {
+            rowData.push(cell.textContent.trim());
+        });
+        csv.push(rowData.join(','));
+    });
+
+    return csv.join('\n');
+}
+
+</script>
+
+
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+{% endblock %}

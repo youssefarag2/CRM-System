@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block head %}
+
+
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+
+    
+
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-static .form-control.zip-code {
+        width: 120px;
+    }
+</style>
+
+
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container-fluid py-4">
+  <div class="d-sm-flex justify-content-between">
+    <div class="d-flex">
+      <a href="/feedback-single" class="btn btn-icon bg-gradient-info  me-2" target="_parent">
+        Single Feedback
+      </a>
+      <a href="/feedback-monthly" class="btn btn-icon bg-gradient-info" target="_parent">
+        Monthly Feedback
+      </a>
+    </div>
+    <div class="d-flex">
+      
+      <button class="btn btn-icon btn-outline-success ms-2 export" data-type="csv" type="button">
+        <i class="material-icons text-xs position-relative">archive</i>
+        Export CSV
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Feedbacks Table</h5>
+          <p class="text-sm mb-0">
+            View all Feedbacks.
+          </p>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-flush" id="datatable-search">
+            <thead class="thead-light">
+              <tr>
+                <th>ID</th>
+                <th>Created</th>
+                <th>Agent</th>
+                <th>Auditor</th>
+                <th>Campaign</th>
+                <th>Feedback</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Report</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for feedback in feedbacks %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+
+                    <p class="text-xs font-weight-normal ms-2 mb-0">#{{feedback.id}}</p>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="my-2 text-xs">{{feedback.created|date:"Y-m-d\\TH:i" }}</span>
+
+                </td>
+                <td class="font-weight-normal">
+                  <span class="my-2 text-xs">{{feedback.agent_profile}}</span>
+                </td>
+                <td class="text-xs font-weight-normal">
+                  {{feedback.auditor_profile}}
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                  <span type="button" class="badge filter bg-gradient-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{feedback.campaign.all|count_services}} Campaigns 
+                  </span>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% if not feedback.campaign.all|count_services %}
+                    <li><a class="dropdown-item border-radius-md" href="javascript:;">No Campaigns</a></li>
+                    {% else %}
+                      {% for campaign in feedback.campaign.all %}
+                      <li><a class="dropdown-item border-radius-md" href="javascript:;">{{campaign.name}}</a></li>
+                      {% endfor %}
+                    {% endif %}
+                  </ul>
+                </div>                
+              </td>
+                <td class="text-xs font-weight-normal">
+                  {% if feedback.feedback_type == "positive" %}
+
+                    <span class="badge text-center badge-dot me-4">
+                      
+                      <i class="bg-success text-center"></i>  
+
+                      <span class="text-dark text-s"> Positive</span>
+                    </span>
+                  {% elif feedback.feedback_type == "neutral" %}
+                  <span class="badge text-center badge-dot me-4">
+                      
+                    <i class="bg-warning text-center"></i>  
+
+                    <span class="text-dark text-s"> Neutral </span>
+                  </span>
+
+                  {% elif feedback.feedback_type == "negative" %}
+                  <span class="badge text-center badge-dot me-4">
+                      
+                    <i class="bg-danger text-center"></i>  
+
+                    <span class="text-dark text-s"> Negative </span>
+                  </span>
+                  {% endif %}
+                </td>
+
+                <td class="text-xs font-weight-normal">
+                  <span class="badge filter bg-gradient-{% if feedback.type == 'single' %}info{% else %}primary  {% endif %}" data-color="success" >
+                    {{feedback.get_type_display}} 
+                  </span>
+                  
+                </td>
+                
+
+                
+
+
+
+                <td class="text-xs font-weight-normal">
+                  {% if feedback.status == "approved" %}
+                  <span class="badge filter bg-gradient-success" data-color="success" >Approved</span>
+                  {% elif feedback.status == "pending" %}
+                  <span class="badge filter bg-gradient-warning" data-color="warning" >Pending</span>
+                  {% elif feedback.status == "rejected" %}
+                  <span class="badge filter bg-gradient-danger" data-color="warning" >Rejected</span>
+                  {% endif %}
+                  
+
+
+                </td>
+
+                <td class="text-sm">
+                  <div class="d-flex align-items-center">
+ 
+                    <a href="/feedback-report/{{feedback.id}}" class="mx-3" 
+                    data-tippy-content="Report" data-tippy-placement="top" target="_parent">
+
+                      <i class="material-icons text-secondary position-relative text-lg">visibility</i>
+                    </a>
+ 
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+  <script>
+    const dataTableSearch = new simpleDatatables.DataTable("#datatable-search", {
+      searchable: true,
+      fixedHeight: false,
+    });
+  
+    // Custom function to decode all URL-encoded characters
+    function decodeAllData(data) {
+      return decodeURIComponent(data); // Decodes any URL-encoded characters
+    }
+  
+    document.querySelectorAll(".export").forEach(function(el) {
+      el.addEventListener("click", function(e) {
+        var type = el.dataset.type;
+  
+        var data = {
+          type: type,
+          filename: "feedback-reports",
+        };
+  
+        if (type === "csv") {
+          data.columnDelimiter = ",";
+        }
+  
+        // Use the export functionality but prevent immediate download
+        const csvContent = dataTableSearch.export({
+          type: type,
+          download: false, // Prevent immediate download
+        });
+  
+        // Decode all URL-encoded characters
+        const decodedContent = decodeAllData(csvContent);
+  
+        // Now trigger the download with the decoded content
+        const blob = new Blob([decodedContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = data.filename + ".csv";
+        link.click();
+      });
+    });
+  </script>
+
+
+
+
+
+<script>
+  // Function to retrieve CSRF token from cookies
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+  }
+
+  function showDeleteConfirmation(account, campName, camp_id) {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn bg-gradient-danger',
+        cancelButton: 'btn bg-gradient-dark'
+      },
+      buttonsStyling: false
+    });
+
+    swalWithBootstrapButtons.fire({
+      title: `Delete ${campName}`,
+      html: `
+        <div class="card border-0 shadow-sm input-group input-group-static">
+          <form id="passwordForm" class="text-center p-3">
+            <input type="password" id="passwordInput" class="form-control" placeholder="Enter your password">
+          </form>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#28a745',
+      cancelButtonText: 'Cancel',
+      cancelButtonColor: '#dc3545',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const password = document.getElementById('passwordInput').value;
+        if (!password) {
+          Swal.showValidationMessage('Please enter your password');
+          return false;
+        }
+
+        // Fetch CSRF token from cookie
+        const csrftoken = getCookie('csrftoken');
+
+        // Send POST request to delete user
+        return fetch(`/campaign-delete/${camp_id}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken // Include CSRF token in headers
+          },
+          body: JSON.stringify({ password })// Include CSRF token in body
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Network response was not ok - ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .catch(error => {
+          Swal.showValidationMessage(`Request failed: ${error}`);
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+      didOpen: () => {
+        Swal.getConfirmButton().disabled = true;
+        document.getElementById('passwordInput').addEventListener('input', () => {
+          const password = document.getElementById('passwordInput').value;
+          Swal.getConfirmButton().disabled = password.length === 0;
+        });
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Campaign Deleted!',
+          icon: 'success'
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cancelled',
+          icon: 'error'
+        });
+      }
+    });
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  var win = navigator.platform.indexOf('Win') > -1;
+  if (win && document.querySelector('#sidenav-scrollbar')) {
+    var options = {
+      damping: '0.5'
+    }
+    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+  }
+</script>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    tippy('[data-tippy-content]', {
+      placement: 'top', // Default placement
+      fallbackPlacements: ['top', 'right', 'bottom', 'left'], // Fallbacks if top doesn't fit
+      boundary: 'window', // Consider the window as the boundary for fitting
+      animation: 'scale', // Optional: Define animation style
+      theme: 'light', // Optional: Define theme
+    });
+  });
+</script>
+
+
+{% endblock %}

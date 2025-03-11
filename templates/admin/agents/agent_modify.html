@@ -1,0 +1,705 @@
+{% extends 'base-admin.html' %}
+{% load static %}
+{% block head %}
+
+<script>
+  window.csrfToken = "{{ csrf_token }}";
+</script>
+
+<style>
+    .input-group-static {
+        margin-bottom: 1.5rem;
+    }
+    .input-group-static .form-control.zip-code {
+        width: 120px; /* Adjust width as needed */
+    }
+
+</style>
+
+
+
+
+
+{% endblock %}
+
+
+{% block body %}
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<div class="container-fluid my-3 py-3">
+    <div class="row mb-5">
+      <div class="col-lg-3">
+        <div class="card position-sticky top-1">
+          <ul class="nav flex-column bg-white border-radius-lg p-3">
+            <li class="nav-item pt-2">
+              <a class="nav-link text-dark d-flex" data-scroll="" href="#basic-info">
+                <i class="material-icons text-lg me-2">person</i>
+                <span class="text-sm">Account Info</span>
+              </a>
+            </li>
+
+            <li class="nav-item pt-2">
+                <a class="nav-link text-dark d-flex" data-scroll="" href="#payment_method">
+                  <i class="material-icons text-lg me-2">paid</i>
+                  <span class="text-sm">Salary Settings</span>
+                </a>
+            </li>
+
+            <li class="nav-item pt-2">
+              <a class="nav-link text-dark d-flex" data-scroll="" href="#national_id">
+                <i class="material-icons text-lg me-2">credit_card</i>
+                <span class="text-sm">National ID</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-9 mt-lg-0 mt-4">
+        <!-- Card agent_profile -->
+        <div class="card card-body" id="profile">
+          <div class="row justify-content-center align-items-center">
+            <div class="col-sm-auto col-4 position-relative">
+              <div class="avatar avatar-xl position-relative">
+                <img src="{% if agent_profile.picture and agent_profile.picture.url %} {{agent_profile.picture.url}} {% else %}../static/img/default-profile-2.png{% endif %}" class="avatar-large">
+
+              </div>
+            </div>
+            <div class="col-sm-auto col-8 my-auto">
+              <div class="h-100">
+                <h5 class="mb-1 font-weight-bolder">
+                  {{agent_profile.full_name}}
+                </h5>
+        
+                <p class="mb-0 font-weight-normal text-sm">
+                  {{agent_profile.role}}
+                </p>
+              </div>
+            </div>
+            <div class="col-sm-auto ms-sm-auto mt-sm-0 mt-3 d-flex">
+              <label class="form-check-label mb-0">
+                <small id="profileVisibility">
+                </small>
+              </label>
+              <div class="form-check form-switch ms-2 my-auto">
+              </div>
+            </div>
+          </div>
+          
+
+        </div>
+        
+        <!-- Card Basic Info -->
+        <div class="card mt-4" id="basic-info">
+          <div class="card-header">
+            <h5>Account Info</h5>
+          </div>
+
+          <div class="card-body pt-0">
+            <form id="payment-method-form" method="POST" >
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-6">
+                  <label>Full Name</label>
+                  <div class="input-group input-group-dynamic ">
+                    <input type="text" class="form-control" name="full_name" value="{{agent_profile.full_name}}" required>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label>Email</label>
+                  <div class="input-group input-group-dynamic ">
+                    <input type="email" class="form-control" name="email" value="{{agent_profile.email}}" required>
+                  </div>
+                </div>
+              </div>
+              <br>
+
+              <div class="row">
+                <div class="col-6">
+                  <label>Phone Number</label>
+                  <div class="input-group input-group-dynamic ">
+                    <input type="text" class="form-control" name="phone_number" value="{{agent_profile.phone_number}}" required>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label>Discord ID</label>
+                  <div class="input-group input-group-dynamic ">
+                    <input type="text" class="form-control" name="discord" value="{{agent_profile.discord}}" required>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="row">
+                <div class="col-6">
+                  <label class="form-label mt-4 ms-0">Birth Date</label>
+                  <div class="input-group input-group-dynamic ">
+                      <input class="form-control" type="date" name="birth_date" value="{{agent_profile.birth_date|date:'Y-m-d'}}" required>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label class="form-label mt-4 ms-0">Hiring Date</label>
+                  <div class="input-group input-group-dynamic ">
+                      <input class="form-control" type="date" name="hiring_date" value = "{{agent_profile.hiring_date|date:'Y-m-d'}}" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+
+                <div class="col-6">
+                  <label class="form-label mt-4 ms-0">Login Time</label>
+                  <div class="input-group input-group-dynamic ">
+                      <input class="form-control" type="time" name="login_time" value = "{{agent_profile.login_time|time:'H:i' }}" required>
+                  </div>
+                </div>
+
+                <div class="col-6">
+                  <label class="form-label mt-4 ms-0">Team *</label>
+                  <div class="input-group input-group-dynamic">
+                      <select class="form-control" name="team" id="team" required>
+                          <option value="">Select Team</option> <!-- Blank option for initial selection -->
+                          {% for team in teams %}
+                            {% if agent_profile.team.id == team.id %}
+                              <option value="{{team.id}}" selected> {{team.team_name}}</option> 
+                            {% else %}
+                              <option value="{{team.id}}"> {{team.team_name}}</option> 
+                            {% endif %}
+                          {% endfor %}
+                        </select>
+                  </div>
+                </div>
+              </div>
+              <br>
+
+              <div class="row">
+                <div class="col-6">
+                      <label>Position</label>
+                      <div class="input-group input-group-dynamic ">
+                            <select class="form-control" name="role" id="role" required>
+                                <option value="">Select Position</option> <!-- Blank option for initial selection -->
+                                {% for role in roles %}
+                                    {% if role == agent_profile.role %}
+                                        <option value="{{role.id}}" selected> {{role.role_name}}</option> 
+                                    {% else %}
+                                        <option value="{{role.id}}"> {{role.role_name}}</option> 
+                                    {% endif %}
+                                {% endfor %}
+                            </select>      
+                      </div>             
+                </div>
+                <div class="col-6">
+                      <label>Your location</label>
+                      <div class="input-group input-group-dynamic ">
+                          <select class="form-control" name="residence" id="residence" placeholder="search">
+                              <option value="">Select Country</option> <!-- Blank option for initial selection -->
+                              {% for key,value in countries.items %}
+                              
+                                {% if agent_profile.residence == key %}
+                                  <option value="{{key}}" selected> {{value}}</option> 
+                                {% else %}
+                                  <option value="{{key}}"> {{value}}</option> 
+                                {% endif %}
+
+                              {% endfor%}                            
+                      
+                          </select>       
+                                      
+                      </div>
+                </div>
+
+              </div>
+
+              <br>
+
+              <div class="row">
+                
+                <div class="col-6">
+                      <label>Account Status</label>
+                      <div class="input-group input-group-dynamic ">
+                          <select class="form-control" name="account_status" id="account_status" placeholder="search">
+                              <option value="">Select Status</option> <!-- Blank option for initial selection -->
+                              {% for key,value in account_statuses %}
+                              
+                                {% if agent_profile.status == key %}
+                                  <option value="{{key}}" selected> {{value}}</option> 
+                                {% else %}
+                                  <option value="{{key}}"> {{value}}</option> 
+                                {% endif %}
+
+                              {% endfor%}                            
+                      
+                          </select>       
+                                      
+                      </div>
+                </div>
+
+              </div>
+              <button type="submit"  name="account_info" class="btn bg-gradient-info btn-sm float-end mt-6 mb-0">Update Account</button>
+
+            </form>
+          
+          </div>
+        </div>
+
+
+        <form id="payment-method-form" method="POST" >
+            {% csrf_token %}
+            <input type="hidden" id="salary_type" value="{{ agent_profile.salary_type }}">
+
+        <div class="card mt-4" id="payment_method">
+            <div class="card-header">
+              <h5>Salary & Payments Settings</h5>
+            </div>
+            <div class="card-body pt-0">
+              <b>Salary Type</b>
+              <div class="row mt-3">
+                <div class="col-12 col-sm-6">
+                    <label class="form-label">Hourly Rate</label>
+                    <div class="input-group input-group-dynamic">
+                        <input class="multisteps-form__input form-control" type="number" name="hourly_rate" step="0.5" value="{{agent_profile.hourly_rate}}" id="hourly_rate_input" disabled>
+                    </div>
+                </div>
+            
+                <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                    <label class="form-label">Monthly Salary</label>
+                    <div class="input-group input-group-dynamic">
+                        <input class="multisteps-form__input form-control" type="number" name="monthly_salary" step="0.5" value="{{agent_profile.monthly_salary}}" id="monthly_salary_input" disabled>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="hourly_rate_checkbox" name="salary_type" value="hourly">
+                        <label class="form-check-label" for="hourly_rate_checkbox">Hourly Rate</label>
+                    </div>
+            
+                    <div class="form-check form-switch mt-2">
+                        <input class="form-check-input" type="checkbox" id="monthly_salary_checkbox" name="salary_type" value="monthly" >
+                        <label class="form-check-label" for="monthly_salary_checkbox">Monthly Salary</label>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <b>Payment Type</b>
+            <br>
+              <div class="row mt-3">
+                <label class="form-label">Payoneer Email</label>
+                  <div class="input-group input-group-outline">
+                    <input type="text" class="form-control" name="payoneer_account" value="{{agent_profile.payoneer}}">
+                  </div>
+              </div>
+              <br>
+              <div class="row mt-3">
+
+                <label class="form-label">InstaPay Account</label>
+                <div class="input-group input-group-outline">
+                  <input type="text" class="form-control" name="instapay_account" value="{{agent_profile.instapay}}">
+                </div>
+              </div>
+              
+              <h5 class="mt-5">Read Carefully</h5>
+
+                  <p class="text-muted mb-2 ">
+                    Please choose the payment method for a successful salary transfer:
+                  </p>
+              <div class="row mt-3">
+                <div class="col-12">
+
+                  <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="payoneer_checkbox" name="salary_account" value="payoneer">
+                      <label class="form-check-label" for="payoneer_checkbox">Payoneer</label>
+                  </div>
+                                      
+                  <div class="form-check form-switch">
+                      <input class="form-check-input  " type="checkbox" id="instapay_checkbox" name="salary_account" value="instapay">
+                      <label class="form-check-label" for="instapay_checkbox">Instapay</label>
+                  </div>
+                </div>
+             </div>
+              
+              
+              <button type="submit"  name="payment_method" class="btn bg-gradient-info btn-sm float-end mt-6 mb-0">Update Payment Settings</button>
+            </div>
+          </div>
+        </form>
+
+
+
+
+        <!-- Card Notifications -->
+        <div class="card mt-4" id="national_id">
+          <div class="card-header">
+              <h5>National ID</h5>
+              <p class="text-sm">Upload user national ID.</p>
+              <a class="btn bg-gradient-dark" 
+              data-bs-toggle="collapse" 
+              href="#collapseExample" 
+              role="button" 
+              aria-expanded="false" 
+              aria-controls="collapseExample"
+              style="position: absolute; top: 1rem; right: 1rem; z-index: 1; background: linear-gradient(90deg, #1f1c1c, #2c2c2c); color: white;">
+              View National ID
+           </a>
+          </div>
+          
+          <div class="card-body pt-0">
+            <div class="mt-4 text-center-custom">
+              
+              <div class="collapse" id="collapseExample">
+                  <div class="card card-body mt-3">
+                      <!-- Image Display -->
+                      <div class="text-center">
+                          <img src="{% if agent_profile.national_id and agent_profile.national_id.url %} {{agent_profile.national_id.url}} {% endif %}" alt="National ID" class="img-container">
+                      </div>
+                  </div>
+              </div>
+          </div>
+                <form action="{% url 'upload_id' agent_profile.id %}" method="POST" enctype="multipart/form-data" class="p-3" name="national_id">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <div class="d-flex justify-content-center">
+                        <div class="upload-btn" style="display: inline-block; cursor: pointer;">
+                            <button type="button" class="btn btn-lg bg-gradient-dark mb-3" onclick="document.getElementById('fileInput').click();" style="cursor: pointer;">
+                                Select Image
+                            </button>
+                            <input id="fileInput" type="file" name="national_id" accept="image/*" onchange="handleFiles(this.files)" style="display: none;">
+                        </div>
+                      </div>
+                        <div id="fileList" class="mt-3" style="margin-top: 1rem;"></div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-info">Save</button>
+                    </div>
+                </form>
+          </div>
+          
+        </div>
+
+
+      </div>
+    </div>
+
+  </div>
+
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById('residence')) {
+            var residence = document.getElementById('residence');
+            const example = new Choices(residence, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('role')) {
+            var role = document.getElementById('role');
+            const example = new Choices(role, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+        if (document.getElementById('team')) {
+            var team = document.getElementById('team');
+            const example = new Choices(team, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchFields: ['label', 'value'], // Fields to search within
+                searchPlaceholderValue: 'Search...', // Placeholder for the search input
+                shouldSort: false, // Disable sorting of choices
+                itemSelectText: '', // Text shown in the dropdown when an item is selected
+                fuseOptions: {
+                    includeScore: true, // Include score in search results
+                    threshold: 0.3, // Match threshold for search results
+                    keys: ['label', 'value'] // Fields to search within
+                }
+            });
+        }
+
+
+        if (document.getElementById('account_status')) {
+          var account_type = document.getElementById('account_status');
+          const example = new Choices(account_type, {
+              searchEnabled: false,
+              searchChoices: false,
+              searchFields: ['label', 'value'], // Fields to search within
+              searchPlaceholderValue: 'Search...', // Placeholder for the search input
+              shouldSort: false, // Disable sorting of choices
+              itemSelectText: '', // Text shown in the dropdown when an item is selected
+              fuseOptions: {
+                  includeScore: true, // Include score in search results
+                  threshold: 0.3, // Match threshold for search results
+                  keys: ['label', 'value'] // Fields to search within
+              }
+          });
+      }
+
+
+    });
+
+</script>
+
+
+
+<script>
+    document.getElementById('campaign-select').addEventListener('change', function() {
+        var placeholderOption = this.options[0];
+        if (placeholderOption.value === '') {
+            placeholderOption.style.display = 'none';
+        }
+    });
+</script>
+
+
+
+
+
+<script>
+    // JavaScript to handle checkbox behavior and pre-check based on agent_profile.payment_method
+    document.addEventListener('DOMContentLoaded', function() {
+        const payoneerCheckbox = document.getElementById('payoneer_checkbox');
+        const instapayCheckbox = document.getElementById('instapay_checkbox');
+
+        // Assuming agent_profile.payment_method is set on the server side
+        let paymentMethod = "{{ agent_profile.payment_method }}"; // Replace with actual Django template variable
+
+        // Function to update checkboxes based on agent_profile.payment_method
+        function updateCheckboxes() {
+            if (paymentMethod === 'payoneer') {
+                payoneerCheckbox.checked = true;
+                instapayCheckbox.checked = false;
+            } else if (paymentMethod === 'instapay') {
+                instapayCheckbox.checked = true;
+                payoneerCheckbox.checked = false;
+            } else {
+                // Handle default case if necessary
+            }
+        }
+
+        // Initial update based on agent_profile.payment_method
+        updateCheckboxes();
+
+        // Event listener to handle checkbox changes
+        payoneerCheckbox.addEventListener('change', function() {
+            if (this.checked && paymentMethod !== 'payoneer') {
+                instapayCheckbox.checked = false;
+                paymentMethod = 'payoneer';
+            } else if (!this.checked && paymentMethod === 'payoneer') {
+                this.checked = true; // Prevent unchecking if already checked
+            }
+        });
+
+        instapayCheckbox.addEventListener('change', function() {
+            if (this.checked && paymentMethod !== 'instapay') {
+                payoneerCheckbox.checked = false;
+                paymentMethod = 'instapay';
+            } else if (!this.checked && paymentMethod === 'instapay') {
+                this.checked = true; // Prevent unchecking if already checked
+            }
+        });
+    });
+</script>
+
+
+<script>
+    function updateTheme(checkbox) {
+        const theme = checkbox.checked ? 'dark' : 'white';
+
+        // Assuming agent_profile.settings_theme is accessible in JavaScript
+        // You might need to pass it from Django views or fetch it via AJAX
+
+        // Example AJAX request to update backend (replace with actual logic)
+        fetch('/update-theme/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Ensure CSRF token is included
+            },
+            body: JSON.stringify({ theme: theme })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            // Handle further logic as needed upon successful update
+            
+        })
+
+        .catch(error => {
+            // Handle error scenarios
+        });
+
+
+    }
+
+    // Function to get CSRF token from cookie (helper function)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+
+
+<script>
+  function updateMapsTheme(checkbox) {
+      const theme = checkbox.checked ? 'dark' : 'white';
+
+      // Assuming agent_profile.settings_theme is accessible in JavaScript
+      // You might need to pass it from Django views or fetch it via AJAX
+
+      // Example AJAX request to update backend (replace with actual logic)
+      fetch('/maps-theme/', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')  // Ensure CSRF token is included
+          },
+          body: JSON.stringify({ theme: theme })
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          // Handle further logic as needed upon successful update
+          
+      })
+
+      .catch(error => {
+          // Handle error scenarios
+      });
+
+
+  }
+
+  // Function to get CSRF token from cookie (helper function)
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+</script>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const hourlyRateCheckbox = document.getElementById('hourly_rate_checkbox');
+      const monthlySalaryCheckbox = document.getElementById('monthly_salary_checkbox');
+      const hourlyRateInput = document.getElementById('hourly_rate_input');
+      const monthlySalaryInput = document.getElementById('monthly_salary_input');
+    
+      var salaryType = document.getElementById('salary_type').value;
+
+      // Initialize the variables
+      var hourly = false;
+      var monthly = false;
+
+      // Set the variables based on the salary type
+      if (salaryType === "hourly") {
+          hourly = true;
+          monthly = false;
+      } else if (salaryType === "monthly") {
+          monthly = true;
+          hourly = false;
+      }
+
+
+      hourlyRateCheckbox.checked = hourly; // Set hourly rate checkbox as checked initially
+      hourlyRateInput.disabled = monthly;
+      monthlySalaryInput.disabled = hourly;
+      monthlySalaryCheckbox.checked = monthly;
+      // Function to handle checkbox changes
+      hourlyRateCheckbox.addEventListener('change', function() {
+          if (this.checked) {
+              hourlyRateInput.disabled = false;
+              monthlySalaryInput.disabled = true;
+              monthlySalaryCheckbox.checked = false;
+          } else {
+              this.checked = true; // Prevent unchecking
+          }
+      });
+  
+      monthlySalaryCheckbox.addEventListener('change', function() {
+          if (this.checked) {
+              monthlySalaryInput.disabled = false;
+              hourlyRateInput.disabled = true;
+              hourlyRateCheckbox.checked = false;
+          } else {
+              this.checked = true; // Prevent unchecking
+          }
+      });
+  });
+  
+
+
+</script>
+
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const fileInput = document.getElementById('fileInput');
+      const fileListDiv = document.getElementById('fileList');
+  
+      fileInput.addEventListener('change', function() {
+          const files = this.files;
+          if (files.length > 0) {
+              const file = files[0];
+              fileListDiv.innerHTML = `<p>Selected File: ${file.name}</p>`;
+          } else {
+              fileListDiv.innerHTML = ''; // Clear the file list if no file is selected
+          }
+      });
+  });
+</script>
+
+
+
+{% endblock %}
