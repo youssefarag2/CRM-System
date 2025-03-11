@@ -45,3 +45,11 @@ Follow these steps to set up and run the CRM application on your local machine.
 
    ```bash
    python -m venv venv
+4 -Activate the virtual environment:
+   On Windows:
+    ```bash
+    
+    venv\Scripts\activate
+   on Mac:
+   ```bash
+   source venv/bin/activat
