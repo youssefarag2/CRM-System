@@ -16,15 +16,13 @@ This Django-based CRM (Customer Relationship Management) application is designed
 ## Screenshots
 
 ![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064423.png)
+![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064423.png)
+![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064518.png)
+![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064538.png)
+![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064613.png)
 
-![Client Management](screenshots/client_management.png)  
-*Client management interface with detailed client information.*
 
-![Agent Management](screenshots/agent_management.png)  
-*Agent management interface with performance metrics.*
 
-![Property Listings](screenshots/property_listings.png)  
-*Property listings with detailed information and status updates.*
 
 ---
 
