@@ -16,7 +16,7 @@ This Django-based CRM (Customer Relationship Management) application is designed
 ## Screenshots
 
 ![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064423.png)
-![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064423.png)
+![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064438.png)
 ![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064518.png)
 ![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064538.png)
 ![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064613.png)
