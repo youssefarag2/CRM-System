@@ -4,6 +4,8 @@
 
 This Django-based CRM (Customer Relationship Management) application is designed for a real estate company that outsources agents and works with clients. The CRM manages all aspects of the business, including client interactions, agent management, property listings, and provides comprehensive dashboards for data visualization and decision-making.
 
+You can find the system hosted here: (https://nedialo.app/)
+
 ## Features
 
 - **Client Management**: Track client interactions, preferences, and history.
