@@ -15,8 +15,7 @@ This Django-based CRM (Customer Relationship Management) application is designed
 
 ## Screenshots
 
-![Dashboard](screenshots/dashboard.png)  
-*Dashboard showing key metrics and performance indicators.*
+![Image](https://github.com/youssefarag2/CRM-System/blob/master/media/Screenshot%202025-03-11%20064423.png)
 
 ![Client Management](screenshots/client_management.png)  
 *Client management interface with detailed client information.*
